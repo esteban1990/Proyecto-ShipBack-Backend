@@ -7,8 +7,6 @@ class Person(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(10), nullable=False)
     lastname = db.Column(db.String(10), nullable=False)
-    email = db.Column(db.String(10), nullable=False)
-    password = db.Column(db.String(6), nullable=False)
     users = db.relationship("User", backref="person", lazy=True)
     
 
@@ -17,8 +15,7 @@ class Person(db.Model):
             "id": self.id,
             "name": self.name,
             "lastname": self.lastname,
-            "email": self.email,
-            "password": self.password
+            
         }
 
 
