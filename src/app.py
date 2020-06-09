@@ -1,3 +1,4 @@
+from models import db
 from flask import Flask, jsonify, request
 import json
 from flask_jwt_extended import(
@@ -16,8 +17,6 @@ jwt = JWTManager(app)
 bcrypt = Bcrypt(app)
 MIGRATE = Migrate(app, db)
 db.init_app(app)
-
-
 
 @app.route("/persons", methods = ["GET"])
 def getPersons():
@@ -102,12 +101,6 @@ def postUsers():
 
 
   return jsonify(list(map(lambda item: item.serialize(), User.query.all())))
-
-
-
-
-
-
 
 if __name__ == '__main__':
   app.run(host='127.0.0.1', port=3245, debug=True)
