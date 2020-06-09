@@ -1,4 +1,3 @@
-from models import db
 from flask import Flask, jsonify, request
 import json
 from flask_jwt_extended import(
@@ -7,7 +6,7 @@ from flask_jwt_extended import(
 )
 from flask_bcrypt import Bcrypt
 from flask_migrate import Migrate
-from models import db, Person, User, Billing_details
+from models import db, Person, User, Billing_details, Order,Petition, boughtProduct
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] ="postgresql://postgres:123.admin@localhost/ejemplo"
@@ -56,7 +55,6 @@ def signUp():
   if user is None:
     return jsonify({"msge": "User doesnt exist"}),400
 
-  
   access_token = create_access_token(identity=email)
   return jsonify(access_token=access_token),200
 
@@ -122,8 +120,68 @@ def billingDetailsPost():
 
   return jsonify(list(map(lambda item : item.serialize(),Billing_details.query.all())))
 
+@app.route("/orders", methods=["GET"])
+def getOrders():
+  orders = Order.query.all()
+  orders_json = list(map(lambda item: item.serialize(), orders))
+
+  return jsonify(orders_json)
+
+@app.route("/orders", methods=["POST"])
+def ordersPost():
+  newOrder = json.loads(request.data)
+  order = Order(id=newOrder["id"],entrepreneur_name=newOrder["entrepreneur_name"], entrepreneur_lastname=newOrder["entrepreneur_lastname"],
+  entrepreneur_email=newOrder["entrepreneur_email"], client_name=newOrder["client_name"], client_lastname=newOrder["client_lastname"],
+  client_email=newOrder["client_email"],booked_date=newOrder["booked_date"],city=newOrder["city"], state=newOrder["state"],
+  courrier=newOrder["courrier"], cost=newOrder["cost"], number_of_packages=newOrder["number_of_packages"],invoice_number=newOrder["invoice_number"],
+  postCode=newOrder["postCode"],user_id=newOrder["user_id"])
+
+  db.session.add(order)
+  db.session.commit
+
+  return jsonify(list(map(lambda item: item.serialize(), Order.query.all())))
 
 
+@app.route("/petitions", methods = ["GET"])
+def getPetitions():
+  petitions = Petition.query.all()
+  petitions_json = list(map(lambda item: item.serialize(), petitions))
+
+  return jsonify(petitions_json)
+
+
+@app.route("/petitions", methods = ["POST"])
+def postPetitions():
+  newPetition = json.loads(request.data)
+  petition = Petition(id=newPetition["id"], email=newPetition["email"], phone_number=newPetition["phone_number"],description=newPetition["description"],
+  change_or_return=newPetition["change_or_return"],bought_product=newPetition["bought_product"],change_product=newPetition["change_product"],
+  return_product=newPetition["return_product"])
+
+  db.session.add(petition)
+  db.session.commit()
+
+  return jsonify(list(map(lambda item: item.serialize(),Petition.query.all())))
+
+
+@app.route("/boughtproducts", methods = ["GET"])
+def getBoughtProducts():
+  boughtProducts = boughtProduct.query.all()
+  boughtProducts_json = list(map(lambda item: item.seralize(), boughtProducts))
+
+  return jsonify(boughtProducts_json)
+
+
+@app.route("/boughtproducts", methods = ["POST"])
+def postBoughtProducts():
+  newBoughtProduct = json.loads(request.data)
+  bought_Product = boughtProduct(id=newBoughtProduct["id"], name=newBoughtProduct["name"],price=newBoughtProduct["price"],
+  selected=newBoughtProduct["selected"],description=newBoughtProduct["description"],petition_id=newBoughtProduct["petition_id"])
+
+  db.session.add(bought_Product)
+  db.session.commit()
+
+
+  
 
 if __name__ == '__main__':
   app.run(host='127.0.0.1', port=3245, debug=True)
