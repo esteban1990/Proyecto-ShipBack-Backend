@@ -4,40 +4,6 @@ db = SQLAlchemy()
 
 #Me traje la clase person y user del ejemplo visto en el curso por si se utiliza para generar el log in.
 
-class Person(db.Model):
-   id = db.Column(db.Integer, primary_key=True)
-   name = db.Column(db.String(100), nullable=False)
-   last_name = db.Column(db.String(100), nullable=False)
-   active = db.Column(db.Boolean, nullable=False)
-   users = db.relationship('User', backref='person', lazy=True)
-
-   def serialize(self):
-     return {
-       "id": self.id,
-       "name": self.name,
-       "last_name": self.last_name,
-       "active": self.active,
-     }
-   def getFullName(self):
-     return {
-       "id": self.id,
-       "full_name": self.name + " " + self.last_name
-     }
-
-class User(db.Model):
-  id = db.Column(db.Integer, primary_key=True)
-  email = db.Column(db.String(255), nullable=False)
-  password = db.Column(db.String(255), nullable=False)
-  person_id = db.Column(db.Integer, db.ForeignKey('person.id'), nullable=True)
-  order = db.relationship('Order', backref='user', lazy=True)
-
-  def serialize(self):
-    return {
-      "id": self.id,
-      "email": self.email,
-      "password": self.password
-    }
-
 class Petition(db.Model):
      id = db.Column(db.Integer, primary_key=True)
      email = db.Column(db.String(10), nullable=False)
@@ -96,3 +62,36 @@ class Billing_details(db.Model):
      cvv = db.Column(db.Integer, nullable=False)
      expiration_date = db.Column(db.String(10), nullable=False)
      user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+
+class Person(db.Model):
+    __tablename__ = 'person'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(10), nullable=False)
+    lastname = db.Column(db.String(10), nullable=False)
+    email = db.Column(db.String(10), nullable=False)
+    password = db.Column(db.String(6), nullable=False)
+    users = db.relationship("User", backref="person", lazy=True)
+
+    def serialize(self):
+        return{
+            "id": self.id,
+            "name": self.name,
+            "lastname": self.lastname,
+            "email": self.email,
+            "password": self.password
+        }
+
+
+class User(db.Model):
+    id = db.Column(db.Interger, primary_key=True)
+    email = db.Column(db.String(255), nullable=False)
+    password= db.Column(db.String(255), nullable=False)
+    person_id = db.Column(db.Interger, db.ForeignKey("person.id"), nullable=True)
+
+
+    def serialize(self):
+        return{
+            "id":self.id,
+            "email":self.email,
+            "password":self.password
+        }

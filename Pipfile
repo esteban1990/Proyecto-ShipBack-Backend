@@ -10,6 +10,9 @@ flask = "*"
 sqlalchemy = "*"
 flask-migrate = "*"
 flask-sqlalchemy = "*"
+python = "*"
+3-8 = "*"
+requests = "*"
 
 [script]
 start= "python src/app.py"
