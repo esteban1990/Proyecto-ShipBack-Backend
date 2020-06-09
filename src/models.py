@@ -19,7 +19,7 @@ class boughtProduct(db.Model):
      name = db.Column(db.String(50), nullable=False)
      price = db.Column(db.Integer, nullable=False)
      selected = db.Column(db.Boolean, nullable=False)
-     description = db.Column(String(50), nullable=True)
+     description = db.Column(db.String(50), nullable=True)
      petition_id = db.Column(db.Integer, db.ForeignKey('Petition.id'), nullable=True)
 
 class Change(db.Model):

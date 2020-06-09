@@ -7,10 +7,10 @@ from flask_jwt_extended import(
 )
 from flask_bcrypt import Bcrypt
 from flask_migrate import Migrate
-from models import db, Person, User
+from models import db, Person, User, Billing_details
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] =# "postgresql://postgres:123.admin@localhost/ejemplo"
+app.config['SQLALCHEMY_DATABASE_URI'] ="postgresql://postgres:123.admin@localhost/ejemplo"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JWT_SECRET_KEY'] = 'KS+.:GMk^+ gO,5.#y6c%?SmYE^5+_2P ao)Etk4AA'
 jwt = JWTManager(app)
@@ -101,6 +101,29 @@ def postUsers():
 
 
   return jsonify(list(map(lambda item: item.serialize(), User.query.all())))
+
+
+
+
+@app.route("/billingdetails", methods=["GET"])
+def billingDetailsPost():
+  billingDetails = Billing_details.query.all()
+  billingDetails_json = list(map(lambda item: item.serialize(),billingDetails))
+
+  return (billingDetails_json)
+
+
+@app.route("/billingdetails", methods = ["POST"])
+def billingDetailsPost():
+  newInfo = json.loads(request.data)
+  info = Billing_details(id=newInfo["id"], cvv=newInfo["cvv"],cardNumber=newInfo["cardNumber"],expirationDate=newInfo["expirateDate"], user_id=newInfo["user_id"])
+  db.session.add(info)
+  db.session.commit
+
+  return jsonify(list(map(lambda item : item.serialize(),Billing_details.query.all())))
+
+
+
 
 if __name__ == '__main__':
   app.run(host='127.0.0.1', port=3245, debug=True)
