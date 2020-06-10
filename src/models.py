@@ -7,12 +7,12 @@ db = SQLAlchemy()
 class Petition(db.Model):
      id = db.Column(db.Integer, primary_key=True)
      email = db.Column(db.String(10), nullable=False)
-     phone_number = db.Column(db.Integer(10), nullable=False)
+     phone_number = db.Column(db.Integer, nullable=False)
      description = db.Column(db.String(50), nullable=True)
      change_or_return = db.Column(db.Boolean, nullable=False) #Si es falso es porque es devolución.
      bought_product = db.relationship('boughtProduct', backref='Petition', lazy=True)
      change_product = db.relationship('Change', backref='Petition', lazy=True)
-     return_product = db.relationship('Return', backref='Return', lazy=True)
+     return_product = db.relationship('Return', backref='Petition', lazy=True)
 
 class boughtProduct(db.Model):
      id = db.Column(db.Integer, primary_key=True)
@@ -35,7 +35,7 @@ class Return(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     bank = db.Column(db.String(50), nullable=True)
     account_type = db.Column(db.String(50), nullable=True)
-    account_number = db_Column(db.Integer, nullable=True)
+    account_number = db.Column(db.Integer, nullable=True)
     petition_id = db.Column(db.Integer, db.ForeignKey('Petition.id'), nullable=True)
 
 class Order(db.Model):
@@ -80,15 +80,16 @@ class Person(db.Model):
 
 
 class User(db.Model):
-    id = db.Column(db.Interger, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(255), nullable=False)
     password= db.Column(db.String(255), nullable=False)
-    person_id = db.Column(db.Interger, db.ForeignKey("person.id"), nullable=True)
+    person_id = db.Column(db.Integer, db.ForeignKey("person.id"), nullable=True)
 
 
     def serialize(self):
         return{
             "id":self.id,
             "email":self.email,
-            "password":self.password
+            "password":self.password,
+        
         }

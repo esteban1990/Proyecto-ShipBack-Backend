@@ -6,7 +6,7 @@ from flask_jwt_extended import(
 )
 from flask_bcrypt import Bcrypt
 from flask_migrate import Migrate
-from models import db, Person, User, Billing_details, Order,Petition, boughtProduct
+from models import db, Person, User, Billing_details, Order,Petition, boughtProduct, Change
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] ="postgresql://postgres:123.admin@localhost/ejemplo"
@@ -14,7 +14,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JWT_SECRET_KEY'] = 'KS+.:GMk^+ gO,5.#y6c%?SmYE^5+_2P ao)Etk4AA'
 jwt = JWTManager(app)
 bcrypt = Bcrypt(app)
-MIGRATE = Migrate(app, db)
+migrate = Migrate(app, db)
 db.init_app(app)
 
 @app.route("/persons", methods = ["GET"])
@@ -104,7 +104,7 @@ def postUsers():
 
 
 @app.route("/billingdetails", methods=["GET"])
-def billingDetailsPost():
+def billingDetailsGet():
   billingDetails = Billing_details.query.all()
   billingDetails_json = list(map(lambda item: item.serialize(),billingDetails))
 
@@ -180,6 +180,22 @@ def postBoughtProducts():
   db.session.add(bought_Product)
   db.session.commit()
 
+
+@app.route("/changes", methods = ["GET"])
+def getChanges():
+  changes = Change.query.all()
+  changes_json = list(map(lambda item: item.serialize(),changes))
+
+  return jsonify(changes_json)
+
+@app.route("/changes", methods =["POST"])
+def postChanges():
+  newChange = json.loads(request.data)
+  change = Change(id=newChange["id"], change_product=newChange["change_product"], state=newChange["state"], city=newChange["city"],
+  address=newChange["address"], commune=newChange["commune"], petition_id=newChange["petition_id"])
+
+  db.session.add(change)
+  db.session.commit()
 
   
 

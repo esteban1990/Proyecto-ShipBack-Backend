@@ -12,6 +12,8 @@ flask-migrate = "*"
 flask-sqlalchemy = "*"
 python = "*"
 requests = "*"
+flask-jwt-extended = "*"
+flask-bcrypt = "*"
 
 [script]
 start= "python src/app.py"
