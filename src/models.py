@@ -3,23 +3,23 @@ from flask_sqlalchemy import SQLAlchemy
 db = SQLAlchemy()
 
 #Me traje la clase person y user del ejemplo visto en el curso por si se utiliza para generar el log in.
-class Petition(db.Model):
-     id = db.Column(db.Integer, primary_key=True)
-     email = db.Column(db.String(10), nullable=False)
-     phone_number = db.Column(db.Integer(10), nullable=False)
-     description = db.Column(db.String(50), nullable=True)
-     change_or_return = db.Column(db.Boolean, nullable=False) #Si es falso es porque es devolución.
-     Boughtproduct = db.relationship('Boughtproduct', backref='Petition', lazy=True)
-     Change = db.relationship('Change', backref='Petition', lazy=True)
-     Return = db.relationship('Return', backref='Petition', lazy=True)
+ class Petition(db.Model):
+      id = db.Column(db.Integer, primary_key=True)
+      email = db.Column(db.String(10), nullable=False)
+      phone_number = db.Column(db.Integer(10), nullable=False)
+      description = db.Column(db.String(50), nullable=True)
+      change_or_return = db.Column(db.Boolean, nullable=False) #Si es falso es porque es devolución.
+      Boughtproduct = db.relationship('Boughtproduct', backref='Petition', lazy=True)
+      Change = db.relationship('Change', backref='Petition', lazy=True)
+      Return = db.relationship('Return', backref='Petition', lazy=True)
 
-     def serialize(self):
-        return{
-            "id": self.id,
-            "email": self.email,
-            "phone_number": self.phone_number,
-            "description": self.description,
-            "change_or_return": self.change_or_return,
+      def serialize(self):
+         return{
+             "id": self.id,
+             "email": self.email,
+             "phone_number": self.phone_number,
+             "description": self.description,
+             "change_or_return": self.change_or_return,
         }
 
 class Boughtproduct(db.Model):

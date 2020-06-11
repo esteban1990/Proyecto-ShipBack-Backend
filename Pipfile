@@ -13,6 +13,8 @@ flask-sqlalchemy = "*"
 python = "*"
 3-8 = "*"
 requests = "*"
+flask-jwt-extended = "*"
+flask-bcrypt = "*"
 
 [script]
 start= "python src/app.py"
