@@ -1,21 +1,27 @@
 from flask import Flask, jsonify, request
 import json
+import os#librebria de pyhton para comunicarme con mi sistemas de archivos
 from flask_jwt_extended import(
     JWTManager, jwt_required, create_access_token,
     get_jwt_identity
 )
 from flask_bcrypt import Bcrypt
-from flask_migrate import Migrate
-from models import db, Person, User, Billing_details, Order,Petition, boughtProduct, Change
+from flask_script import Manager
+from flask_migrate import Migrate, MigrateCommand
+from models import db, Person, User, Billing_details, Order,Petition, Boughtproduct, Change
 
+BASEDIR = os.path.abspath(os.path.dirname(__file__))
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] ="postgresql://postgres:123.admin@localhost/ejemplo"
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + os.path.join(BASEDIR, "test.db")
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JWT_SECRET_KEY'] = 'KS+.:GMk^+ gO,5.#y6c%?SmYE^5+_2P ao)Etk4AA'
 jwt = JWTManager(app)
 bcrypt = Bcrypt(app)
 migrate = Migrate(app, db)
 db.init_app(app)
+Manager = Mange(app)
+Manager.add_command("db",MigrateCommand)
+
 
 @app.route("/persons", methods = ["GET"])
 def getPersons():
@@ -165,7 +171,7 @@ def postPetitions():
 
 @app.route("/boughtproducts", methods = ["GET"])
 def getBoughtProducts():
-  boughtProducts = boughtProduct.query.all()
+  boughtProducts = Boughtproduct.query.all()
   boughtProducts_json = list(map(lambda item: item.seralize(), boughtProducts))
 
   return jsonify(boughtProducts_json)
@@ -174,7 +180,7 @@ def getBoughtProducts():
 @app.route("/boughtproducts", methods = ["POST"])
 def postBoughtProducts():
   newBoughtProduct = json.loads(request.data)
-  bought_Product = boughtProduct(id=newBoughtProduct["id"], name=newBoughtProduct["name"],price=newBoughtProduct["price"],
+  bought_Product = Boughtproduct(id=newBoughtProduct["id"], name=newBoughtProduct["name"],price=newBoughtProduct["price"],
   selected=newBoughtProduct["selected"],description=newBoughtProduct["description"],petition_id=newBoughtProduct["petition_id"])
 
   db.session.add(bought_Product)
@@ -200,4 +206,4 @@ def postChanges():
   
 
 if __name__ == '__main__':
-  app.run(host='127.0.0.1', port=3245, debug=True)
+  Manager.run()
