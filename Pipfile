@@ -11,8 +11,10 @@ sqlalchemy = "*"
 flask-migrate = "*"
 flask-sqlalchemy = "*"
 python = "*"
-3-8 = "*"
 requests = "*"
+flask-jwt-extended = "*"
+flask-bcrypt = "*"
+flask-script = "*"
 
 [script]
 start= "python src/app.py"
