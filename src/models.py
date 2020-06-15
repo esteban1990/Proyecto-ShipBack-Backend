@@ -27,8 +27,8 @@ class Boughtproduct(db.Model):
      name = db.Column(db.String(50), nullable=False)
      price = db.Column(db.Integer, nullable=False)
      selected = db.Column(db.Boolean, nullable=False)
-     description = db.Column(String(50), nullable=True)
-     petition_id = db.Column(db.Integer, db.ForeignKey('Petition.id'), nullable=True)
+     description = db.Column(db.String(50), nullable=True)
+     petition_id = db.Column(db.Integer, db.ForeignKey('petition.id'), nullable=True)
 
      def serialize(self):
         return{
@@ -37,6 +37,7 @@ class Boughtproduct(db.Model):
             "price": self.price,
             "selected": self.selected,
             "description": self.description,
+          
         }
 
 class Change(db.Model):
@@ -46,7 +47,7 @@ class Change(db.Model):
     city = db.Column(db.String(50), nullable=True)
     address = db.Column(db.String(50), nullable=True)
     commune = db.Column(db.String(50), nullable=True)
-    petition_id = db.Column(db.Integer, db.ForeignKey('Petition.id'), nullable=True)
+    petition_id = db.Column(db.Integer, db.ForeignKey('petition.id'), nullable=True)
 
     def serialize(self):
         return{
@@ -55,22 +56,22 @@ class Change(db.Model):
             "state": self.state,
             "city": self.city,
             "address": self.address,
-            "commune": self.commune,
+            "commune": self.commune
         }
 
 class Return(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     bank = db.Column(db.String(50), nullable=True)
     account_type = db.Column(db.String(50), nullable=True)
-    account_number = db_Column(db.Integer, nullable=True)
-    petition_id = db.Column(db.Integer, db.ForeignKey('Petition.id'), nullable=True)
+    account_number = db.Column(db.Integer, nullable=True)
+    petition_id = db.Column(db.Integer, db.ForeignKey('petition.id'), nullable=True)
 
     def serialize(self):
         return{
             "id": self.id,
             "bank": self.bank,
             "account_type": self.account_type,
-            "account_number": self.account_number,
+            "account_number": self.account_number
         }
 
 class Order(db.Model):
@@ -107,7 +108,7 @@ class Order(db.Model):
             "cost": self.cost,
             "number_of_packages": self.number_of_packages,
             "invoice_number": self.invoice_number,
-            "postCode": self.postCode,
+            "postCode": self.postCode
         }
 
 
@@ -118,12 +119,12 @@ class Billing_details(db.Model):
      expiration_date = db.Column(db.String(10), nullable=False)
      user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
 
-    def serialize(self):
-        return{
+def serialize(self):
+    return{
             "id": self.id,
             "cardNumber": self.cardNumber,
             "cvv": self.cvv,
-            "expiration_date": self.expiration_date,
+            "expiration_date": self.expiration_date
         }
 
 class Person(db.Model):
@@ -131,17 +132,14 @@ class Person(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(10), nullable=False)
     lastname = db.Column(db.String(10), nullable=False)
-    email = db.Column(db.String(10), nullable=False)
-    password = db.Column(db.String(6), nullable=False)
     users = db.relationship("User", backref="person", lazy=True)
 
     def serialize(self):
         return{
             "id": self.id,
             "name": self.name,
-            "lastname": self.lastname,
-            "email": self.email,
-            "password": self.password
+            "lastname": self.lastname
+            
         }
 
 
@@ -156,4 +154,5 @@ class User(db.Model):
             "id":self.id,
             "email":self.email,
             "password":self.password
+        
         }
