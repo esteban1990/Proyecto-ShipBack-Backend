@@ -125,7 +125,40 @@ class Billing_details(db.Model):
         "cardNumber": self.cardNumber,
         "cvv": self.cvv,
         "expiration_date": self.expiration_date
-       
+        }
+
+class Sender_details(db.Model):
+     id = db.Column(db.Integer, primary_key=True)
+     storeName = db.Column(db.String(10), nullable=False)
+     contactName = db.Column(db.String(10), nullable=False)
+     companyName = db.Column(db.String(10), nullable=False)
+     contactPhone = db.Column(db.Integer, nullable=False)
+     emailContact = db.Column(db.String(10), nullable=False)
+     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+     PickUpAddress = db.relationship('PickUpAddress', backref='sender_details', lazy=True)
+
+     def serialize(self):
+        return{
+        "id": self.id,
+        "storeName": self.storeName,
+        "contactName": self.contactName,
+        "companyName": self.companyName,
+        "contactPhone": self.contactPhone,
+        "industry": self.industry,
+        "emailContact": self.emailContact,
+        }
+
+class PickUpAddress(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    address = db.Column(db.String(50), nullable=False)
+    city = db.Column(db.String(50), nullable=False)
+    Sender_details_id = db.Column(db.Integer, db.ForeignKey('sender_details.id'), nullable=True)
+
+    def serialize(self):
+        return{
+        "id": self.id,
+        "address": self.address,
+        "city": self.city,
         }
 
 class Person(db.Model):

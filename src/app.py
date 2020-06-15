@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, request
 import json
-import os#librebria de pyhton para comunicarme con mi sistemas de archivos
+import os #librería de pyhton para comunicarme con mi sistemas de archivos
 from flask_jwt_extended import(
     JWTManager, jwt_required, create_access_token,
     get_jwt_identity
