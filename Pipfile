@@ -14,6 +14,8 @@ python = "*"
 requests = "*"
 flask-jwt-extended = "*"
 flask-bcrypt = "*"
+flask-script = "*"
+models = "*"
 
 [script]
 start= "python src/app.py"
