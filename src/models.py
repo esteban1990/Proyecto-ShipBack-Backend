@@ -31,7 +31,7 @@ class Boughtproduct(db.Model):
      description = db.Column(db.String(50), nullable=True)
      petition_id = db.Column(db.Integer, db.ForeignKey('petition.id'), nullable=True)
 
-     def serialize(self):
+def serialize(self):
         return{
             "id": self.id,
             "name": self.name,
@@ -81,12 +81,12 @@ class Order(db.Model):
      entrepreneur_lastname = db.Column(db.String(10), nullable=False)
      entrepreneur_email = db.Column (db.String(10), nullable=False)
      client_name = db.Column(db.String(10), nullable=False) 
-     client_lastname = db.Column(db.String(10), nullable=False)
-     client_email = db.Column(db.String(10), nullable=False) 
+     client_lastname = db.Column(db.String(50), nullable=False)
+     client_email = db.Column(db.String(50), nullable=False) 
      booked_date = db.Column(db.DateTime, nullable=False)
-     city = db.Column(db.String(10), nullable=False)
-     state = db.Column(db.String(10), nullable=False)
-     courrier = db.Column(db.String(10), nullable=False)
+     city = db.Column(db.String(50), nullable=False)
+     state = db.Column(db.String(50), nullable=False)
+     courrier = db.Column(db.String(50), nullable=False)
      cost = db.Column(db.Integer, nullable=False)
      number_of_packages = db.Column(db.Integer, nullable=False)
      invoice_number = db.Column(db.Integer, nullable=False)
@@ -112,7 +112,6 @@ class Order(db.Model):
             "postCode": self.postCode
         }
 
-
 class Billing_details(db.Model):
      id = db.Column(db.Integer, primary_key=True)
      cardNumber = db.Column(db.Integer, nullable=False)
@@ -120,12 +119,13 @@ class Billing_details(db.Model):
      expiration_date = db.Column(db.String(10), nullable=False)
      user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
 
-def serialize(self):
-    return{
-            "id": self.id,
-            "cardNumber": self.cardNumber,
-            "cvv": self.cvv,
-            "expiration_date": self.expiration_date
+     def serialize(self):
+        return{
+        "id": self.id,
+        "cardNumber": self.cardNumber,
+        "cvv": self.cvv,
+        "expiration_date": self.expiration_date
+       
         }
 
 class Person(db.Model):
@@ -139,7 +139,7 @@ class Person(db.Model):
         return{
             "id": self.id,
             "name": self.name,
-            "lastname": self.lastname
+            "lastname": self.lastname,
             
         }
 
