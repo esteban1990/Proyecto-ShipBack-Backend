@@ -82,7 +82,7 @@ class Order(db.Model):
      client_name = db.Column(db.String(50), nullable=False) 
      client_lastname = db.Column(db.String(50), nullable=False)
      client_email = db.Column(db.String(50), nullable=False) 
-     booked_date = db.Column(db.DateTime, nullable=True)
+     booked_date = db.Column(db.DateTime, nullable=False)
      city = db.Column(db.String(50), nullable=False)
      state = db.Column(db.String(50), nullable=False)
      courrier = db.Column(db.String(50), nullable=False)
@@ -147,7 +147,7 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(255), nullable=False)
     password= db.Column(db.String(255), nullable=False)
-    person_id = db.Column(db.Integer, db.ForeignKey("person.id"), nullable=True)
+    person_id = db.Column(db.Integer, db.ForeignKey("person.id"), nullable=False)
 
     def serialize(self):
         return{
