@@ -148,6 +148,22 @@ class Sender_details(db.Model):
         "emailContact": self.emailContact,
         }
 
+class Support(db.Model):
+     id = db.Column(db.Integer, primary_key=True)
+     reason = db.Column(db.String(10), nullable=False)
+     attached_file = db.Column(db.Boolean, nullable=False)
+     description = db.Column(db.String(300), nullable=False)
+     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+
+     def serialize(self):
+        return{
+        "id": self.id,
+        "reason": self.reason,
+        "attached_file": self.attached_file,
+        "description": self.description
+       
+        }
+
 class PickUpAddress(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     address = db.Column(db.String(50), nullable=False)
