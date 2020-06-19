@@ -1,14 +1,13 @@
 from flask import Flask, jsonify, request
 import json
-import os #librería de pyhton para comunicarme con mi sistemas de archivos
+import os #librebria de pyhton para comunicarme con mi sistemas de archivos
 from flask_jwt_extended import(
     JWTManager, jwt_required, create_access_token,
-    get_jwt_identity
-)
+    get_jwt_identity)
 from flask_bcrypt import Bcrypt
 from flask_script import Manager
 from flask_migrate import Migrate, MigrateCommand
-from models import db, Person, User, Billing_details, Order,Petition, Boughtproduct, Change, Return
+from models import db, Person, User, Billing_details, Order, Petition, Boughtproduct, Change, Return
 
 BASEDIR = os.path.abspath(os.path.dirname(__file__))
 app = Flask(__name__)
@@ -44,12 +43,16 @@ def postPersons():
 
 @app.route("/signup", methods=["POST"])
 def signUp():
+  user = User()
+  person = Person()
+
   if not request.is_json:
     return jsonify({"msge": "Missing Json in request"}),400
-  email = request.json.get("email",None)
-  password = request.json.get("password", None)
-  name =  request.json.get("name", None)
-  lastname = request.json.get("lastname",None)
+
+  user.email = request.json.get("email",None)
+  user.password = request.json.get("password", None)
+  person.name =  request.json.get("name", None)
+  person.lastname = request.json.get("lastname",None)
   if not email:
     return jsonify({"msge": "Misssing email parameter"}),400
   if not password:
@@ -58,14 +61,23 @@ def signUp():
     return({"msge":"Missing name parameter"}),400
   if not lastname:
     return({"msge":"Missing lastname parameter"}),400
-   
-  
+    
+    idperson = Person.query.get(id)
+    user.person_id = idperson
+#hacer un tipo de query al objeto person , me retorna un elemnto de mi tabla, a ese elemento le pido el id.    
+    db.session.add(user)
+    db.session.add(person)
+    db.session.commit()
+
 
   access_token = create_access_token(identity=email)
   return jsonify(access_token=access_token),200
 
 @app.route("/login", methods=["POST"])
 def login():
+  newLogin = json.loads(request.data)
+  login = User(email=newLogin["email"],password=newLogin["password"])
+
   if not request.is_json:
     return jsonify({"msge": "Missing Json in request"}),400
   email = request.json.get("email",None)
@@ -82,10 +94,19 @@ def login():
   if user.password != password:
     return jsonify({"msge": "password dont match"}),400
 
+    db.session.add(login)
+    db.session.commit()
+
   access_token = create_access_token(identity=email)
   return jsonify(access_token=access_token),200
 
 
+@app.route("/login", methods = ["GET"])
+def getLogin():
+  logins = User.query.all()
+  logins_json = list(map(lambda item: item.serialize(),logins))
+
+  return jsonify(logins_json)
 
 @app.route("/users", methods= ["GET"])
 def getUsers():
