@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 db = SQLAlchemy()
 
 #Me traje la clase person y user del ejemplo visto en el curso por si se utiliza para generar el log in.
- class Petition(db.Model):
+class Petition(db.Model):
       id = db.Column(db.Integer, primary_key=True)
       email = db.Column(db.String(10), nullable=False)
       phone_number = db.Column(db.Integer(10), nullable=False)
