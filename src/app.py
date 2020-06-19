@@ -7,7 +7,7 @@ from flask_jwt_extended import(
 from flask_bcrypt import Bcrypt
 from flask_script import Manager
 from flask_migrate import Migrate, MigrateCommand
-from models import db, Person, User, Billing_details, Order, Petition, Boughtproduct, Change, Return
+from models import db, Person, User, Billing_details, Order, Petition, Boughtproduct, Change, Return,
 
 BASEDIR = os.path.abspath(os.path.dirname(__file__))
 app = Flask(__name__)
