@@ -63,7 +63,7 @@ def signUp():
     return({"msge":"Missing lastname parameter"}),400
     
     idperson = Person.query.get(id)
-    user.person_id = idperson
+    user.person_id = User.query.get(id)
 #hacer un tipo de query al objeto person , me retorna un elemnto de mi tabla, a ese elemento le pido el id.    
     db.session.add(user)
     db.session.add(person)
