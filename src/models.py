@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 db = SQLAlchemy()
 
 #Me traje la clase person y user del ejemplo visto en el curso por si se utiliza para generar el log in.
- class Petition(db.Model):
+class Petition(db.Model):
       id = db.Column(db.Integer, primary_key=True)
       email = db.Column(db.String(10), nullable=False)
       phone_number = db.Column(db.Integer(10), nullable=False)
@@ -146,6 +146,22 @@ class Sender_details(db.Model):
         "contactPhone": self.contactPhone,
         "industry": self.industry,
         "emailContact": self.emailContact,
+        }
+
+class Support(db.Model):
+     id = db.Column(db.Integer, primary_key=True)
+     reason = db.Column(db.String(10), nullable=False)
+     attached_file = db.Column(db.Boolean, nullable=False)
+     description = db.Column(db.String(300), nullable=False)
+     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+
+     def serialize(self):
+        return{
+        "id": self.id,
+        "reason": self.reason,
+        "attached_file": self.attached_file,
+        "description": self.description
+       
         }
 
 class PickUpAddress(db.Model):
