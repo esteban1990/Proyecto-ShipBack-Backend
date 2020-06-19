@@ -4,22 +4,22 @@ db = SQLAlchemy()
 
 #Me traje la clase person y user del ejemplo visto en el curso por si se utiliza para generar el log in.
 class Petition(db.Model):
-     id = db.Column(db.Integer, primary_key=True)
-     email = db.Column(db.String(10), nullable=False)
-     phone_number = db.Column(db.Integer, nullable=False)
-     description = db.Column(db.String(50), nullable=True)
-     change_or_return = db.Column(db.Boolean, nullable=False) #Si es falso es porque es devolución.
-     bought_product = db.relationship('Boughtproduct', backref='petition', lazy=True)
-     change_product = db.relationship('Change', backref='petition', lazy=True)
-     return_product = db.relationship('Return', backref='petition', lazy=True)
+      id = db.Column(db.Integer, primary_key=True)
+      email = db.Column(db.String(10), nullable=False)
+      phone_number = db.Column(db.Integer(10), nullable=False)
+      description = db.Column(db.String(50), nullable=True)
+      change_or_return = db.Column(db.Boolean, nullable=False) #Si es falso es porque es devolución.
+      Boughtproduct = db.relationship('Boughtproduct', backref='Petition', lazy=True)
+      Change = db.relationship('Change', backref='Petition', lazy=True)
+      Return = db.relationship('Return', backref='Petition', lazy=True)
 
-     def serialize(self):
-        return{
-            "id": self.id,
-            "email": self.email,
-            "phone_number": self.phone_number,
-            "description": self.description,
-            "change_or_return": self.change_or_return,
+      def serialize(self):
+         return{
+             "id": self.id,
+             "email": self.email,
+             "phone_number": self.phone_number,
+             "description": self.description,
+             "change_or_return": self.change_or_return,
         }
 
 class Boughtproduct(db.Model):
@@ -125,6 +125,56 @@ class Billing_details(db.Model):
         "cvv": self.cvv,
         "expiration_date": self.expiration_date
        
+        }
+
+class Sender_details(db.Model):
+     id = db.Column(db.Integer, primary_key=True)
+     storeName = db.Column(db.String(10), nullable=False)
+     contactName = db.Column(db.String(10), nullable=False)
+     companyName = db.Column(db.String(10), nullable=False)
+     contactPhone = db.Column(db.Integer, nullable=False)
+     emailContact = db.Column(db.String(10), nullable=False)
+     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+     PickUpAddress = db.relationship('PickUpAddress', backref='sender_details', lazy=True)
+
+     def serialize(self):
+        return{
+        "id": self.id,
+        "storeName": self.storeName,
+        "contactName": self.contactName,
+        "companyName": self.companyName,
+        "contactPhone": self.contactPhone,
+        "industry": self.industry,
+        "emailContact": self.emailContact,
+        }
+
+class Support(db.Model):
+     id = db.Column(db.Integer, primary_key=True)
+     reason = db.Column(db.String(10), nullable=False)
+     attached_file = db.Column(db.Boolean, nullable=False)
+     description = db.Column(db.String(300), nullable=False)
+     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+
+     def serialize(self):
+        return{
+        "id": self.id,
+        "reason": self.reason,
+        "attached_file": self.attached_file,
+        "description": self.description
+       
+        }
+
+class PickUpAddress(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    address = db.Column(db.String(50), nullable=False)
+    city = db.Column(db.String(50), nullable=False)
+    Sender_details_id = db.Column(db.Integer, db.ForeignKey('sender_details.id'), nullable=True)
+
+    def serialize(self):
+        return{
+        "id": self.id,
+        "address": self.address,
+        "city": self.city,
         }
 
 class Person(db.Model):
