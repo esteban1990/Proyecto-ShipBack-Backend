@@ -6,7 +6,7 @@ db = SQLAlchemy()
 class Petition(db.Model):
       id = db.Column(db.Integer, primary_key=True)
       email = db.Column(db.String(10), nullable=False)
-      phone_number = db.Column(db.Integer(10), nullable=False)
+      phone_number = db.Column(db.Integer, nullable=False)
       description = db.Column(db.String(50), nullable=True)
       change_or_return = db.Column(db.Boolean, nullable=False) #Si es falso es porque es devolución.
       Boughtproduct = db.relationship('Boughtproduct', backref='Petition', lazy=True)
@@ -197,7 +197,7 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(255), nullable=False)
     password= db.Column(db.String(255), nullable=False)
-    person_id = db.Column(db.Integer, db.ForeignKey("person.id"), nullable=False)
+    person_id = db.Column(db.Integer, db.ForeignKey("person.id"), nullable=True)
 
     def serialize(self):
         return{
