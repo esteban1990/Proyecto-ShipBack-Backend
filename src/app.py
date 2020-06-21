@@ -1,13 +1,18 @@
-from flask import Flask, jsonify, request
+
 import json
-import os #librebria de pyhton para comunicarme con mi sistemas de archivos
-from flask_jwt_extended import(
-    JWTManager, jwt_required, create_access_token,
-    get_jwt_identity)
+import os  # librebria de pyhton para comunicarme con mi sistemas de archivos
+
+from flask import Flask, jsonify, request
 from flask_bcrypt import Bcrypt
-from flask_script import Manager
+from flask_jwt_extended import (JWTManager, create_access_token,
+                                get_jwt_identity, jwt_required)
 from flask_migrate import Migrate, MigrateCommand
-from models import db, Person, User, Billing_details, Order, Petition, Boughtproduct, Change, Return,
+from flask_script import Manager
+
+
+from models import (Billing_details, Boughtproduct, Change, Order, Person,
+                    Petition, PickUpAddress, Return, Sender_details, Support,
+                    User, db)
 
 BASEDIR = os.path.abspath(os.path.dirname(__file__))
 app = Flask(__name__)
@@ -43,6 +48,7 @@ def postPersons():
 
 @app.route("/signup", methods=["POST"])
 def signUp():
+
   user = User()
   person = Person()
 
@@ -53,24 +59,25 @@ def signUp():
   user.password = request.json.get("password", None)
   person.name =  request.json.get("name", None)
   person.lastname = request.json.get("lastname",None)
-  if not email:
+  
+  if not user.email:
     return jsonify({"msge": "Misssing email parameter"}),400
-  if not password:
+  if not user.password:
     return({"msge":"Missing password parameter"}),400
-  if not name:
-    return({"msge":"Missing name parameter"}),400
-  if not lastname:
+  if not person.name:
+    return({"mge":"Missing name parameter"}),400
+  if not person.lastname:
     return({"msge":"Missing lastname parameter"}),400
-    
-    idperson = Person.query.get(id)
-    user.person_id = idperson
-#hacer un tipo de query al objeto person , me retorna un elemnto de mi tabla, a ese elemento le pido el id.    
-    db.session.add(user)
-    db.session.add(person)
-    db.session.commit()
 
+ # user.person.append(person)
+  #db.session.add(user)
+  #db.session.commit()
 
-  access_token = create_access_token(identity=email)
+  person.users.append(user)
+  db.session.add(person)
+  db.session.commit()
+
+  access_token = create_access_token(identity=user.email)
   return jsonify(access_token=access_token),200
 
 @app.route("/login", methods=["POST"])
@@ -139,8 +146,11 @@ def billingDetailsGet():
 
 @app.route("/billingdetails", methods = ["POST"])
 def billingDetailsPost():
+  userr = User()
   newInfo = json.loads(request.data)
   info = Billing_details(id=newInfo["id"], cvv=newInfo["cvv"],cardNumber=newInfo["cardNumber"],expiration_date=newInfo["expiration_date"])
+
+  Billing_details.user_id.append(userr)
   db.session.add(info)
   db.session.commit()
 
