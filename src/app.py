@@ -1,14 +1,12 @@
 
 import json
 import os  # librebria de pyhton para comunicarme con mi sistemas de archivos
-
 from flask import Flask, jsonify, request
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import (JWTManager, create_access_token,
                                 get_jwt_identity, jwt_required)
 from flask_migrate import Migrate, MigrateCommand
 from flask_script import Manager
-
 
 from models import (Billing_details, Boughtproduct, Change, Order, Person,
                     Petition, PickUpAddress, Return, Sender_details, Support,
@@ -26,14 +24,12 @@ db.init_app(app)
 Manager = Manager(app)
 Manager.add_command("db",MigrateCommand)
 
-
 @app.route("/persons", methods = ["GET"])
 def getPersons():
   persons = Person.query.all()
   persons_json = list(map(lambda item: item.serialize(),persons))
 
   return jsonify(persons_json)
-
 
 @app.route("/persons", methods = ["POST"])
 def postPersons():
@@ -42,9 +38,7 @@ def postPersons():
   db.session.add(person)
   db.session.commit()
 
- 
   return jsonify(list(map(lambda item: item.serialize(), Person.query.all())))
-
 
 @app.route("/signup", methods=["POST"])
 def signUp():
@@ -107,7 +101,6 @@ def login():
   access_token = create_access_token(identity=email)
   return jsonify(access_token=access_token),200
 
-
 @app.route("/login", methods = ["GET"])
 def getLogin():
   logins = User.query.all()
@@ -122,7 +115,6 @@ def getUsers():
 
   return jsonify(users_json)
 
-
 @app.route("/users", methods = ["POST"])
 def postUsers():
   newUser = json.loads(request.data)
@@ -130,11 +122,7 @@ def postUsers():
   db.session.add(user)
   db.session.commit()
 
-
   return jsonify(list(map(lambda item: item.serialize(), User.query.all())))
-
-
-
 
 @app.route("/billingdetails", methods=["GET"])
 def billingDetailsGet():
@@ -142,7 +130,6 @@ def billingDetailsGet():
   billingDetails_json = list(map(lambda item: item.serialize(),billingDetails))
 
   return (billingDetails_json)
-
 
 @app.route("/billingdetails", methods = ["POST"])
 def billingDetailsPost():
@@ -156,6 +143,30 @@ def billingDetailsPost():
 
   return jsonify(list(map(lambda item : item.serialize(),Billing_details.query.all())))
 
+# @app.route("/orders", methods=["GET"])
+# def getOrders():
+#   orders = Order.query.all()
+#   orders_json = list(map(lambda item: item.serialize(), orders))
+
+#   return jsonify(orders_json)
+
+# @app.route("/orders", methods=["POST"])
+# def ordersPost():
+#   newOrder = json.loads(request.data)
+#   order = Order(id=newOrder["id"],entrepreneur_name=newOrder["entrepreneur_name"], entrepreneur_lastname=newOrder["entrepreneur_lastname"],
+#   entrepreneur_email=newOrder["entrepreneur_email"], client_name=newOrder["client_name"], client_lastname=newOrder["client_lastname"],
+#   client_email=newOrder["client_email"],booked_date=newOrder["booked_date"], city=newOrder["city"], state=newOrder["state"],
+#   courrier=newOrder["courrier"], cost=newOrder["cost"], number_of_packages=newOrder["number_of_packages"],invoice_number=newOrder["invoice_number"],
+#   postCode=newOrder["postCode"])
+
+#   db.session.add(order)
+#   db.session.commit()
+
+#   return jsonify(list(map(lambda item: item.serialize(), Order.query.all())))
+
+
+# NUEVA ORDEN ATTILIO # 
+
 @app.route("/orders", methods=["GET"])
 def getOrders():
   orders = Order.query.all()
@@ -166,11 +177,7 @@ def getOrders():
 @app.route("/orders", methods=["POST"])
 def ordersPost():
   newOrder = json.loads(request.data)
-  order = Order(id=newOrder["id"],entrepreneur_name=newOrder["entrepreneur_name"], entrepreneur_lastname=newOrder["entrepreneur_lastname"],
-  entrepreneur_email=newOrder["entrepreneur_email"], client_name=newOrder["client_name"], client_lastname=newOrder["client_lastname"],
-  client_email=newOrder["client_email"],booked_date=newOrder["booked_date"], city=newOrder["city"], state=newOrder["state"],
-  courrier=newOrder["courrier"], cost=newOrder["cost"], number_of_packages=newOrder["number_of_packages"],invoice_number=newOrder["invoice_number"],
-  postCode=newOrder["postCode"])
+  order = Order(id=newOrder["id"], booked_date=newOrder["booked_date"], delivery_id=newOrder["delivery_id"], invoice_number=newOrder["invoice_numbe"], products=newOrder["products"], courrier=newOrder["courrier"], price=newOrder["price"])
 
   db.session.add(order)
   db.session.commit()
@@ -185,7 +192,6 @@ def getPetitions():
 
   return jsonify(petitions_json)
 
-
 @app.route("/petitions", methods = ["POST"])
 def postPetitions():
   newPetition = json.loads(request.data)
@@ -197,14 +203,12 @@ def postPetitions():
 
   return jsonify(list(map(lambda item: item.serialize(),Petition.query.all())))
 
-
 @app.route("/boughtproducts", methods = ["GET"])
 def getBoughtProducts():
   boughtProducts = Boughtproduct.query.all()
   boughtProducts_json = list(map(lambda item: item.seralize(), boughtProducts))
 
   return jsonify(boughtProducts_json)
-
 
 @app.route("/boughtproducts", methods = ["POST"])
 def postBoughtProducts():
@@ -216,9 +220,6 @@ def postBoughtProducts():
   db.session.commit()
 
   return jsonify(list(map(lambda item: item.serialize(),Boughtproduct.query.all())))
-
-
-
 
 @app.route("/changes", methods = ["GET"])
 def getChanges():
@@ -237,14 +238,12 @@ def postChanges():
   db.session.commit()
   return jsonify(list(map(lambda item: item.serialize(),Change.query.all())))
 
-
 @app.route("/returns", methods = ["GET"])
 def getReturn():
   returns = Return.query.all()
   return_json =  list(map(lambda item: item.serialize(), returns))
 
   return jsonify(return_json)
-
 
 @app.route("/returns", methods = ["POST"])
 def postReturn():
