@@ -74,41 +74,64 @@ class Return(db.Model):
             "account_number": self.account_number
         }
 
+# class Order(db.Model):
+#      id = db.Column(db.Integer, primary_key=True)
+#      entrepreneur_name = db.Column(db.String(50), nullable=False)
+#      entrepreneur_lastname = db.Column(db.String(50), nullable=False)
+#      entrepreneur_email = db.Column (db.String(50), nullable=False)
+#      client_name = db.Column(db.String(50), nullable=False) 
+#      client_lastname = db.Column(db.String(50), nullable=False)
+#      client_email = db.Column(db.String(50), nullable=False) 
+#      booked_date = db.Column(db.DateTime, nullable=False)
+#      city = db.Column(db.String(50), nullable=False)
+#      state = db.Column(db.String(50), nullable=False)
+#      courrier = db.Column(db.String(50), nullable=False)
+#      cost = db.Column(db.Integer, nullable=False)
+#      number_of_packages = db.Column(db.Integer, nullable=False)
+#      invoice_number = db.Column(db.Integer, nullable=False)
+#      postCode = db.Column(db.Integer, nullable=False)
+#      user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+
+#      def serialize(self):
+#         return{
+#             "id": self.id,
+#             "entrepreneur_name": self.entrepreneur_name,
+#             "entrepreneur_lastname": self.entrepreneur_lastname,
+#             "entrepreneur_email": self.entrepreneur_email,
+#             "client_name": self.client_name,
+#             "client_lastname": self.client_lastname,
+#             "client_email": self.client_email,
+#             "booked_date": self.booked_date,
+#             "city": self.city,
+#             "state": self.state,
+#             "courrier": self.courrier,
+#             "cost": self.cost,
+#             "number_of_packages": self.number_of_packages,
+#             "invoice_number": self.invoice_number,
+#             "postCode": self.postCode
+#         }
+
+# NUEVA ORDEN ATTILIO # 
+
 class Order(db.Model):
      id = db.Column(db.Integer, primary_key=True)
-     entrepreneur_name = db.Column(db.String(50), nullable=False)
-     entrepreneur_lastname = db.Column(db.String(50), nullable=False)
-     entrepreneur_email = db.Column (db.String(50), nullable=False)
-     client_name = db.Column(db.String(50), nullable=False) 
-     client_lastname = db.Column(db.String(50), nullable=False)
-     client_email = db.Column(db.String(50), nullable=False) 
-     booked_date = db.Column(db.DateTime, nullable=False)
-     city = db.Column(db.String(50), nullable=False)
-     state = db.Column(db.String(50), nullable=False)
-     courrier = db.Column(db.String(50), nullable=False)
-     cost = db.Column(db.Integer, nullable=False)
-     number_of_packages = db.Column(db.Integer, nullable=False)
+     booked_date = db.Column(db.String(50), nullable=False)
+     delivery_id = db.Column(db.Integer, nullable=False)
      invoice_number = db.Column(db.Integer, nullable=False)
-     postCode = db.Column(db.Integer, nullable=False)
+     products = db.Column(db.String(50), nullable=False)
+     courrier = db.Column(db.String(50), nullable=False)
+     price = db.Column(db.Integer, nullable=False)
      user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
 
      def serialize(self):
         return{
             "id": self.id,
-            "entrepreneur_name": self.entrepreneur_name,
-            "entrepreneur_lastname": self.entrepreneur_lastname,
-            "entrepreneur_email": self.entrepreneur_email,
-            "client_name": self.client_name,
-            "client_lastname": self.client_lastname,
-            "client_email": self.client_email,
             "booked_date": self.booked_date,
-            "city": self.city,
-            "state": self.state,
-            "courrier": self.courrier,
-            "cost": self.cost,
-            "number_of_packages": self.number_of_packages,
+            "delivery_id": self.delivery_id,
             "invoice_number": self.invoice_number,
-            "postCode": self.postCode
+            "products": self.products,
+            "courrier": self.courrier,
+            "price": self.price,
         }
 
 class Billing_details(db.Model):
