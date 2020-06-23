@@ -6,6 +6,7 @@ db = SQLAlchemy()
 class Petition(db.Model):
       id = db.Column(db.Integer, primary_key=True)
       email = db.Column(db.String(10), nullable=False)
+      asked_number = db.Column(db.Integer, nullable=False)
       phone_number = db.Column(db.Integer, nullable=False)
       description = db.Column(db.String(50), nullable=True)
       change_or_return = db.Column(db.Boolean, nullable=False) #Si es falso es porque es devolución.
@@ -121,7 +122,7 @@ class Order(db.Model):
      products = db.Column(db.String(50), nullable=False)
      courrier = db.Column(db.String(50), nullable=False)
      price = db.Column(db.Integer, nullable=False)
-     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+     user_email = db.Column(db.String(255), db.ForeignKey('user.email'), nullable=True)
 
      def serialize(self):
         return{
@@ -155,7 +156,6 @@ class Sender_details(db.Model):
      storeName = db.Column(db.String(10), nullable=False)
      contactName = db.Column(db.String(10), nullable=False)
      companyName = db.Column(db.String(10), nullable=False)
-     contactPhone = db.Column(db.Integer, nullable=False)
      emailContact = db.Column(db.String(10), nullable=False)
      user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
      PickUpAddress = db.relationship('PickUpAddress', backref='sender_details', lazy=True)
@@ -166,8 +166,6 @@ class Sender_details(db.Model):
         "storeName": self.storeName,
         "contactName": self.contactName,
         "companyName": self.companyName,
-        "contactPhone": self.contactPhone,
-        "industry": self.industry,
         "emailContact": self.emailContact,
         }
 
@@ -221,6 +219,7 @@ class User(db.Model):
     email = db.Column(db.String(255), nullable=False)
     password= db.Column(db.String(255), nullable=False)
     person_id = db.Column(db.Integer, db.ForeignKey("person.id"), nullable=True)
+    orders = db.relationship("Order", backref="user", lazy=True)
 
     def serialize(self):
         return{
@@ -229,3 +228,7 @@ class User(db.Model):
             "password":self.password
         
         }
+
+    
+
+    

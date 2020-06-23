@@ -57,7 +57,7 @@ def signUp():
   if not user.email:
     return jsonify({"msge": "Misssing email parameter"}),400
   if not user.password:
-    return({"msge":"Missing password parameter"}),400
+    return jsonify({"msge":"Missing password parameter"}),400
   if not person.name:
     return({"mge":"Missing name parameter"}),400
   if not person.lastname:
@@ -76,8 +76,8 @@ def signUp():
 
 @app.route("/login", methods=["POST"])
 def login():
-  newLogin = json.loads(request.data)
-  login = User(email=newLogin["email"],password=newLogin["password"])
+  #newLogin = json.loads(request.data)
+ #login = User(email=newLogin["email"],password=newLogin["password"])
 
   if not request.is_json:
     return jsonify({"msge": "Missing Json in request"}),400
@@ -95,8 +95,8 @@ def login():
   if user.password != password:
     return jsonify({"msge": "password dont match"}),400
 
-    db.session.add(login)
-    db.session.commit()
+   # db.session.add(login)
+    #db.session.commit()
 
   access_token = create_access_token(identity=email)
   return jsonify(access_token=access_token),200
@@ -107,6 +107,43 @@ def getLogin():
   logins_json = list(map(lambda item: item.serialize(),logins))
 
   return jsonify(logins_json)
+
+
+@app.route("/forgot-password", methods=["PUT"])
+def forgotPasswordUser():
+#agregar como campo confirmPassword a la tabla User????
+
+
+  if not request.is_json:
+    return jsonify({"msge": "Missing Json in request"}),400
+
+  email = request.json.get("email",None)
+  password = request.json.get("password", None)
+  confirmPassword = request.json.get("confirmPassword", None)
+
+  if not email:
+    return jsonify({"msge": "Misssing email parameter"}),400
+
+  if not password:
+    return({"msge":"Missing password parameter"}),400
+
+  if not confirmPassword:
+    return({"msge":"Missing password parameter"}),400
+
+  if password != confirmPassword:
+    return ({"msge": "Passwords dont match"}),
+
+  user = User.query.filter_by(email=email).first()
+  if user is None:
+    return jsonify({"msge":"user dosent exist"}),400
+
+    user.password = password
+
+
+    
+    db.session.commit()
+
+
 
 @app.route("/users", methods= ["GET"])
 def getUsers():
@@ -123,6 +160,8 @@ def postUsers():
   db.session.commit()
 
   return jsonify(list(map(lambda item: item.serialize(), User.query.all())))
+
+    
 
 @app.route("/billingdetails", methods=["GET"])
 def billingDetailsGet():
@@ -176,13 +215,46 @@ def getOrders():
 
 @app.route("/orders", methods=["POST"])
 def ordersPost():
-  newOrder = json.loads(request.data)
-  order = Order(id=newOrder["id"], booked_date=newOrder["booked_date"], delivery_id=newOrder["delivery_id"], invoice_number=newOrder["invoice_numbe"], products=newOrder["products"], courrier=newOrder["courrier"], price=newOrder["price"])
 
+  order = Order()
+
+  newOrder = json.loads(request.data)
+  order = Order(booked_date=newOrder["booked_date"], delivery_id=newOrder["delivery_id"], invoice_number=newOrder["invoice_number"], products=newOrder["products"], courrier=newOrder["courrier"], price=newOrder["price"])
+  email = request.json.get("email",None)
+  user = User.query.filter_by(email=email).first()
+  if user is None:
+    return jsonify({"msge":"user dosent exist"}),400
+
+  order.user.append(user)
   db.session.add(order)
   db.session.commit()
 
   return jsonify(list(map(lambda item: item.serialize(), Order.query.all())))
+
+
+@app.route("/sender-details", methods = ["POST"])
+def sender_detailsPost():
+  newDetails = json.loads(request.data)
+  details = Sender_details(id=newDetails["id"], storeName=newDetails["storeName"],contactName=newDetails["contactName"],
+  companyName=newDetails["companyName"],emailContact=newDetails["emailContact"])
+
+  db.session.add(details)
+  db.session.commit()
+
+  return jsonify(list(map(lambda item: item.serialize(),Sender_details.query.all())))
+
+
+@app.route("/sender-details", methods = ["GET"])
+def senderdetailsGet():
+
+  details = Sender_details.query.all()
+  details_json = list(map(lambda item : item.serialize(), details))
+
+  return jsonify(details_json)
+
+
+@app.route("/pick-up-address", methods = ["POST"])
+
 
 
 @app.route("/petitions", methods = ["GET"])
