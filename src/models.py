@@ -114,25 +114,31 @@ class Return(db.Model):
 
 # NUEVA ORDEN ATTILIO # 
 
-class Order(db.Model):
+class Order(db.Model): 
      id = db.Column(db.Integer, primary_key=True)
-     booked_date = db.Column(db.String(50), nullable=False)
-     delivery_id = db.Column(db.Integer, nullable=False)
-     invoice_number = db.Column(db.Integer, nullable=False)
-     products = db.Column(db.String(50), nullable=False)
-     courrier = db.Column(db.String(50), nullable=False)
-     price = db.Column(db.Integer, nullable=False)
+     address= db.Column(db.String(50), nullable=False)
+     cellphone=db.Column(db.Integer, nullable=False)
+     city=db.Column(db.Integer, nullable=False)
+     email=db.Column(db.String(50), nullable=False)
+     orderNumber=db.Column(db.String(50), nullable=False)
+     phone=db.Column(db.String(50), nullable=False)
+     postCode=db.Column(db.Integer, nullable=False)
+     recipient=db.Column(db.String(50), nullable=False)
+     streetAddress=db.Column(db.String(50), nullable=False)
      user_email = db.Column(db.String(255), db.ForeignKey('user.email'), nullable=True)
 
      def serialize(self):
         return{
             "id": self.id,
-            "booked_date": self.booked_date,
-            "delivery_id": self.delivery_id,
-            "invoice_number": self.invoice_number,
-            "products": self.products,
-            "courrier": self.courrier,
-            "price": self.price,
+            "address": self.address,
+            "cellphone": self.cellphone,
+            "city": self.city,
+            "email": self.email,
+            "orderNumber": self.orderNumber,
+            "phone": self.phone,
+            "postCode": self.postCode,
+            "recipient": self.recipient,
+            "streetAddress": self.streetAddress
         }
 
 class Billing_details(db.Model):

@@ -224,12 +224,12 @@ def ordersPost():
   order = Order()
 
   newOrder = json.loads(request.data)
-  order_ = Order(booked_date=newOrder["booked_date"], delivery_id=newOrder["delivery_id"], invoice_number=newOrder["invoice_number"], products=newOrder["products"], courrier=newOrder["courrier"], price=newOrder["price"])
+  order_ = Order(address=newOrder["address"], cellphone=newOrder["cellphone"], city=newOrder["city"], email=newOrder["email"], orderNumber=newOrder["orderNumber"], phone=newOrder["phone"], postCode=newOrder["postCode"], recipient=newOrder["recipient"], streetAddress=newOrder["streetAddress"])
   email = request.json.get("email",None)
 
   user = User.query.filter_by(email=email).first()
   if user is None:
-    return jsonify({"msge":"user dosent exist"}),400
+    return jsonify({"msge":"user doesn't exist"}),400
 
   order.user.append(user)
   db.session.add(order)
