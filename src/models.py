@@ -1,5 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
-
+from random import randint
 db = SQLAlchemy()
 
 #Me traje la clase person y user del ejemplo visto en el curso por si se utiliza para generar el log in.
@@ -140,7 +140,7 @@ class Billing_details(db.Model):
      cardNumber = db.Column(db.Integer, nullable=False)
      cvv = db.Column(db.Integer, nullable=False)
      expiration_date = db.Column(db.String(50), nullable=False)
-     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+     user_email = db.Column(db.String(255), db.ForeignKey('user.email'), nullable=True)
 
      def serialize(self):
         return{
@@ -157,7 +157,7 @@ class Sender_details(db.Model):
      contactName = db.Column(db.String(10), nullable=False)
      companyName = db.Column(db.String(10), nullable=False)
      emailContact = db.Column(db.String(10), nullable=False)
-     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+     user_email = db.Column(db.String(255), db.ForeignKey('user.email'), nullable=True)
      PickUpAddress = db.relationship('PickUpAddress', backref='sender_details', lazy=True)
 
      def serialize(self):
@@ -174,7 +174,7 @@ class Support(db.Model):
      reason = db.Column(db.String(10), nullable=False)
      attached_file = db.Column(db.Boolean, nullable=False)
      description = db.Column(db.String(300), nullable=False)
-     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+     user_email = db.Column(db.String(), db.ForeignKey('user.email'), nullable=True)
 
      def serialize(self):
         return{
@@ -212,6 +212,8 @@ class Person(db.Model):
             "lastname": self.lastname,
             
         }
+    def _generateId(self): # devuelve un numero aleatorio entre 0 y el numero que se ve
+        return randint(0, 99999999)
 
 
 class User(db.Model):
@@ -228,7 +230,12 @@ class User(db.Model):
             "password":self.password
         
         }
+    
 
+    def update_user(self, id,):
+        obj = self.get.User(id)
+        obj.update()
+        return obj
     
 
     
