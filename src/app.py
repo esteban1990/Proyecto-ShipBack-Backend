@@ -71,8 +71,6 @@ def signUp():
   db.session.add(person)
   db.session.commit()
 
-  access_token = create_access_token(identity=user.email)
-  return jsonify(access_token=access_token),200
 
 @app.route("/login", methods=["POST"])
 def login():
@@ -101,6 +99,8 @@ def login():
   access_token = create_access_token(identity=email)
   return jsonify(access_token=access_token),200
 
+
+
 @app.route("/login", methods = ["GET"])
 def getLogin():
   logins = User.query.all()
@@ -112,8 +112,6 @@ def getLogin():
 @app.route("/forgot-password", methods=["PUT"])
 def forgotPasswordUser():
 #agregar como campo confirmPassword a la tabla User????
-
-
   if not request.is_json:
     return jsonify({"msge": "Missing Json in request"}),400
 
@@ -130,17 +128,16 @@ def forgotPasswordUser():
   if not confirmPassword:
     return({"msge":"Missing password parameter"}),400
 
-  if password != confirmPassword:
-    return ({"msge": "Passwords dont match"}),
-
-  user = User.query.filter_by(email=email).first()
+    user = User.query.filter_by(email=email).first()
   if user is None:
     return jsonify({"msge":"user dosent exist"}),400
 
+  if password != confirmPassword:
+    return ({"msge": "Passwords dont match"}),400
+
+
     user.password = password
-
-
-    
+    db.session.add(user)
     db.session.commit()
 
 
@@ -172,11 +169,19 @@ def billingDetailsGet():
 
 @app.route("/billingdetails", methods = ["POST"])
 def billingDetailsPost():
-  userr = User()
+
+  billing_details = Billing_details()
+
   newInfo = json.loads(request.data)
   info = Billing_details(id=newInfo["id"], cvv=newInfo["cvv"],cardNumber=newInfo["cardNumber"],expiration_date=newInfo["expiration_date"])
 
-  Billing_details.user_id.append(userr)
+  email = request.json.get("email",None)
+
+  user = User.query.filter_by(email=email).first()
+  if user is None:
+    return jsonify({"msge":"user dosent exist"}),400
+
+  Billing_details.user.append(user)
   db.session.add(info)
   db.session.commit()
 
@@ -219,8 +224,9 @@ def ordersPost():
   order = Order()
 
   newOrder = json.loads(request.data)
-  order = Order(booked_date=newOrder["booked_date"], delivery_id=newOrder["delivery_id"], invoice_number=newOrder["invoice_number"], products=newOrder["products"], courrier=newOrder["courrier"], price=newOrder["price"])
+  order_ = Order(booked_date=newOrder["booked_date"], delivery_id=newOrder["delivery_id"], invoice_number=newOrder["invoice_number"], products=newOrder["products"], courrier=newOrder["courrier"], price=newOrder["price"])
   email = request.json.get("email",None)
+
   user = User.query.filter_by(email=email).first()
   if user is None:
     return jsonify({"msge":"user dosent exist"}),400
@@ -234,11 +240,23 @@ def ordersPost():
 
 @app.route("/sender-details", methods = ["POST"])
 def sender_detailsPost():
+
+  
+  pickupAddress = PickUpAddress()
+
   newDetails = json.loads(request.data)
-  details = Sender_details(id=newDetails["id"], storeName=newDetails["storeName"],contactName=newDetails["contactName"],
+  sender_details = Sender_details(id=newDetails["id"], storeName=newDetails["storeName"],contactName=newDetails["contactName"],
   companyName=newDetails["companyName"],emailContact=newDetails["emailContact"])
 
-  db.session.add(details)
+  email = request.json.get("email",None)
+
+  user = User.query.filter_by(email=email).first()
+  if user is None:
+    return jsonify({"msge":"user dosent exist"}),400
+
+  sender_details.user.append(user)
+  sender_details.PickUpAddress.append(pickupAddress)
+  db.session.add(sender_details)
   db.session.commit()
 
   return jsonify(list(map(lambda item: item.serialize(),Sender_details.query.all())))
@@ -254,6 +272,21 @@ def senderdetailsGet():
 
 
 @app.route("/pick-up-address", methods = ["POST"])
+def pickupAddress():
+
+  pickup_address = PickUpAddress()
+
+  newpickUp = json.loads(request.data)
+  pickUp = PickUpAddress(id=newpickUp["id"], address=newpickUp["address"],
+   city=newpickUp["city"],user_email=newpickUp["user_email"])
+
+  email = request.json.get("email",None)
+
+  user = User.query.filter_by(email=email)
+  if user is None:
+    return jsonify({"msge":"user dosent exist"}),400
+
+  pickup_address.user.append(user)
 
 
 
@@ -266,10 +299,18 @@ def getPetitions():
 
 @app.route("/petitions", methods = ["POST"])
 def postPetitions():
+
   newPetition = json.loads(request.data)
   petition = Petition(id=newPetition["id"], email=newPetition["email"], phone_number=newPetition["phone_number"],description=newPetition["description"],
   change_or_return=newPetition["change_or_return"])
 
+  email = request.json.get("email",None)
+
+  user = User.query.filter_by(email=email)
+  if user is None:
+    return jsonify({"msge":"user dosent exist"}),400
+  
+  petition.Boughtproduct.append(Boughtproduct)  
   db.session.add(petition)
   db.session.commit()
 
@@ -319,8 +360,16 @@ def getReturn():
 
 @app.route("/returns", methods = ["POST"])
 def postReturn():
+  
   newReturn = json.loads(request.data)
   return_  = Return(id=newReturn["id"], bank=newReturn["bank"],account_type=newReturn["account_type"],account_number=newReturn["account_number"])
+
+  email = request.json.get("email",None)
+
+  user = User.query.filter_by(email=email)
+  if user is None:
+    return jsonify({"msge":"user dosent exist"}),400
+  db.return_.append(user)
   db.session.add(return_)
   db.session.commit()
 
