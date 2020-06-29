@@ -4,6 +4,7 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
+pylint = "*"
 
 [packages]
 flask = "*"
@@ -15,6 +16,7 @@ requests = "*"
 flask-jwt-extended = "*"
 flask-bcrypt = "*"
 flask-script = "*"
+flask-cors = "*"
 models = "*"
 flask-cors = "*"
 

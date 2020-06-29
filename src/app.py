@@ -1,21 +1,22 @@
-
 import json
-import os  # librebria de pyhton para comunicarme con mi sistemas de archivos
+import os
 from flask import Flask, jsonify, request
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import (JWTManager, create_access_token,
                                 get_jwt_identity, jwt_required)
 from flask_migrate import Migrate, MigrateCommand
 from flask_script import Manager
-from flask_cors  import CORS
+from flask_cors import CORS
+
 from models import (Billing_details, Boughtproduct, Change, Order, Person,
-                    Petition, PickUpAddress, Return, Sender_details, Support,
+                    Petition, PickUpAddress, Return, Sender_details,
                     User, db)
 
 BASEDIR = os.path.abspath(os.path.dirname(__file__))
 app = Flask(__name__)
 CORS(app)
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + os.path.join(BASEDIR, "test.db")
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + \
+    os.path.join(BASEDIR, "test.db")
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JWT_SECRET_KEY'] = 'KS+.:GMk^+ gO,5.#y6c%?SmYE^5+_2P ao)Etk4AA'
 jwt = JWTManager(app)
@@ -23,368 +24,388 @@ bcrypt = Bcrypt(app)
 migrate = Migrate(app, db)
 db.init_app(app)
 Manager = Manager(app)
-Manager.add_command("db",MigrateCommand)
+Manager.add_command("db", MigrateCommand)
 
-@app.route("/persons", methods = ["GET"])
+@app.route("/persons", methods=["GET"])
 def getPersons():
-  persons = Person.query.all()
-  persons_json = list(map(lambda item: item.serialize(),persons))
+    persons = Person.query.all()
+    persons_json = list(map(lambda item: item.serialize(), persons))
 
-  return jsonify(persons_json)
+    return jsonify(persons_json)
 
-@app.route("/persons", methods = ["POST"])
+
+@app.route("/persons", methods=["POST"])
 def postPersons():
-  newPerson = json.loads(request.data)
-  person = Person(name=newPerson["name"], lastname=newPerson["lastname"])
-  db.session.add(person)
-  db.session.commit()
+    newPerson = json.loads(request.data)
+    person = Person(name=newPerson["name"], lastname=newPerson["lastname"])
+    db.session.add(person)
+    db.session.commit()
 
-  return jsonify(list(map(lambda item: item.serialize(), Person.query.all())))
+    return jsonify(list(map(lambda item: item.serialize(), Person.query.all())))
+
 
 @app.route("/signup", methods=["POST"])
 def signUp():
 
-  user = User()
-  person = Person()
+    user = User()
+    person = Person()
 
-  if not request.is_json:
-    return jsonify({"msge": "Missing Json in request"}),400
+    if not request.is_json:
+        return jsonify({"msge": "Missing Json in request"}), 400
 
-  user.email = request.json.get("email",None)
-  user.password = request.json.get("password", None)
-  person.name =  request.json.get("name", None)
-  person.lastname = request.json.get("lastname",None)
-  
-  if not user.email:
-    return jsonify({"msge": "Misssing email parameter"}),400
-  if not user.password:
-    return jsonify({"msge":"Missing password parameter"}),400
-  if not person.name:
-    return({"mge":"Missing name parameter"}),400
-  if not person.lastname:
-    return({"msge":"Missing lastname parameter"}),400
+    user.email = request.json.get("email", None)
+    user.password = request.json.get("password", None)
+    person.name = request.json.get("name", None)
+    person.lastname = request.json.get("lastname", None)
 
- # user.person.append(person)
-  #db.session.add(user)
-  #db.session.commit()
+    if not user.email:
+        return jsonify({"msge": "Misssing email parameter"}), 400
+    if not user.password:
+        return jsonify({"msge": "Missing password parameter"}), 400
+    if not person.name:
+        return({"mge": "Missing name parameter"}), 400
+    if not person.lastname:
+        return({"msge": "Missing lastname parameter"}), 400
 
-  person.users.append(user)
-  db.session.add(person)
-  db.session.commit()
+    person.users.append(user)
+    db.session.add(person)
+    db.session.commit()
 
 
 @app.route("/login", methods=["POST"])
 def login():
-  #newLogin = json.loads(request.data)
+ #newLogin = json.loads(request.data)
  #login = User(email=newLogin["email"],password=newLogin["password"])
 
-  if not request.is_json:
-    return jsonify({"msge": "Missing Json in request"}),400
-  email = request.json.get("email",None)
-  password = request.json.get("password", None)
-  if not email:
-    return jsonify({"msge": "Misssing email parameter"}),400
-  if not password:
-    return({"msge":"Missing password parameter"}),400
-  
-  user = User.query.filter_by(email=email).first()
-  if user is None:
-    return jsonify({"msge":"user dosent exist"}),400
+    if not request.is_json:
+        return jsonify({"msge": "Missing Json in request"}), 400
+    email = request.json.get("email", None)
+    password = request.json.get("password", None)
+    if not email:
+        return jsonify({"msge": "Misssing email parameter"}), 400
+    if not password:
+        return({"msge": "Missing password parameter"}), 400
 
-  if user.password != password:
-    return jsonify({"msge": "password dont match"}),400
+    user = User.query.filter_by(email=email).first()
 
-   # db.session.add(login)
-    #db.session.commit()
+    if user is None:
+        return jsonify({"msge": "user dosent exist"}), 400
 
-  access_token = create_access_token(identity=email)
-  return jsonify(access_token=access_token),200
+    if user.password != password:
+        return jsonify({"msge": "password dont match"}), 400
+
+       # db.session.add(login)
+        # db.session.commit()
+
+    access_token = create_access_token(identity=email)
+    return jsonify(access_token=access_token), 200
 
 
-
-@app.route("/login", methods = ["GET"])
+@app.route("/login", methods=["GET"])
 def getLogin():
-  logins = User.query.all()
-  logins_json = list(map(lambda item: item.serialize(),logins))
+    logins = User.query.all()
+    logins_json = list(map(lambda item: item.serialize(), logins))
 
-  return jsonify(logins_json)
+    return jsonify(logins_json)
 
 
 @app.route("/forgot-password", methods=["PUT"])
 def forgotPasswordUser():
-#agregar como campo confirmPassword a la tabla User????
-  if not request.is_json:
-    return jsonify({"msge": "Missing Json in request"}),400
 
-  email = request.json.get("email",None)
-  password = request.json.get("password", None)
-  confirmPassword = request.json.get("confirmPassword", None)
+    if not request.is_json:
+        return jsonify({"msge": "Missing Json in request"}), 400
 
-  if not email:
-    return jsonify({"msge": "Misssing email parameter"}),400
+    email = request.json.get("email", None)
+    password = request.json.get("password", None)
+    confirmPassword = request.json.get("confirmPassword", None)
 
-  if not password:
-    return({"msge":"Missing password parameter"}),400
+    if not email:
+        return jsonify({"msge": "Misssing email parameter"}), 400
 
-  if not confirmPassword:
-    return({"msge":"Missing password parameter"}),400
+    if not password:
+        return({"msge": "Missing password parameter"}), 400
 
-    user = User.query.filter_by(email=email).first()
-  if user is None:
-    return jsonify({"msge":"user dosent exist"}),400
+    if not confirmPassword:
+        return({"msge": "Missing password parameter"}), 400
 
-  if password != confirmPassword:
-    return ({"msge": "Passwords dont match"}),400
+        user = User.query.filter_by(email=email).first()
+    if user is None:
+        return jsonify({"msge": "user dosent exist"}), 400
+
+    if password != confirmPassword:
+        return ({"msge": "Passwords dont match"}), 400
+
+        user.password = password
+        db.session.add(user)
+        db.session.commit()
 
 
-    user.password = password
+@app.route("/users", methods=["GET"])
+def getUsers():
+    users = User.query.all()
+    users_json = list(map(lambda item: item.serialize(), users))
+
+    return jsonify(users_json)
+
+
+@app.route("/users", methods=["POST"])
+def postUsers():
+    newUser = json.loads(request.data)
+    user = User(email=newUser["email"], password=newUser["password"])
     db.session.add(user)
     db.session.commit()
 
+    return jsonify(list(map(lambda item: item.serialize(), User.query.all())))
 
-
-@app.route("/users", methods= ["GET"])
-def getUsers():
-  users = User.query.all()
-  users_json = list(map(lambda item: item.serialize(),users))
-
-  return jsonify(users_json)
-
-@app.route("/users", methods = ["POST"])
-def postUsers():
-  newUser = json.loads(request.data)
-  user = User(email=newUser["email"], password=newUser["password"])
-  db.session.add(user)
-  db.session.commit()
-
-  return jsonify(list(map(lambda item: item.serialize(), User.query.all())))
-
-    
 
 @app.route("/billingdetails", methods=["GET"])
 def billingDetailsGet():
-  billingDetails = Billing_details.query.all()
-  billingDetails_json = list(map(lambda item: item.serialize(),billingDetails))
+    billingDetails = Billing_details.query.all()
+    billingDetails_json = list(
+        map(lambda item: item.serialize(), billingDetails))
 
-  return (billingDetails_json)
+    return (billingDetails_json)
 
-@app.route("/billingdetails", methods = ["POST"])
+
+@app.route("/billingdetails", methods=["POST"])
 def billingDetailsPost():
 
-  #billing_details = Billing_details()#esta demas esta linea no es necesario..
+    newInfo = json.loads(request.data)
+    info = Billing_details(id=newInfo["id"], cvv=newInfo["cvv"], cardNumber=newInfo["cardNumber"], expiration_date=newInfo["expiration_date"],
+                           user_email=newInfo["user_email"])
 
-  newInfo = json.loads(request.data)
-  info = Billing_details(id=newInfo["id"], cvv=newInfo["cvv"],cardNumber=newInfo["cardNumber"],expiration_date=newInfo["expiration_date"],
-  user_email=newInfo["user_email"])
+    #email = request.json.get("email",None)
 
-  #email = request.json.get("email",None)
+    user = User.query.filter_by(email=newInfo["user_email"]).first()
+    if user is None:
+        return jsonify({"msge": "user dosent exist"}), 400
 
-  user = User.query.filter_by(email=newInfo["user_email"]).first()
-  if user is None:
-    return jsonify({"msge":"user dosent exist"}),400
+    # Billing_details.user.append(user)
+    db.session.add(info)
+    db.session.commit()
 
- # Billing_details.user.append(user)
-  db.session.add(info)
-  db.session.commit()
+    return jsonify(list(map(lambda item: item.serialize(), Billing_details.query.all())))
 
-  # si se necista esta infromacion en el front end????
-  return jsonify(list(map(lambda item : item.serialize(),Billing_details.query.all())))
-
-# @app.route("/orders", methods=["GET"])
-# def getOrders():
-#   orders = Order.query.all()
-#   orders_json = list(map(lambda item: item.serialize(), orders))
-
-#   return jsonify(orders_json)
-
-# @app.route("/orders", methods=["POST"])
-# def ordersPost():
-#   newOrder = json.loads(request.data)
-#   order = Order(id=newOrder["id"],entrepreneur_name=newOrder["entrepreneur_name"], entrepreneur_lastname=newOrder["entrepreneur_lastname"],
-#   entrepreneur_email=newOrder["entrepreneur_email"], client_name=newOrder["client_name"], client_lastname=newOrder["client_lastname"],
-#   client_email=newOrder["client_email"],booked_date=newOrder["booked_date"], city=newOrder["city"], state=newOrder["state"],
-#   courrier=newOrder["courrier"], cost=newOrder["cost"], number_of_packages=newOrder["number_of_packages"],invoice_number=newOrder["invoice_number"],
-#   postCode=newOrder["postCode"])
-
-#   db.session.add(order)
-#   db.session.commit()
-
-#   return jsonify(list(map(lambda item: item.serialize(), Order.query.all())))
-
-
-# NUEVA ORDEN ATTILIO # 
 
 @app.route("/orders", methods=["GET"])
 def getOrders():
-  orders = Order.query.all()
-  orders_json = list(map(lambda item: item.serialize(), orders))
+    orders = Order.query.all()
+    orders_json = list(map(lambda item: item.serialize(), orders))
 
-  return jsonify(orders_json)
+    return jsonify(orders_json)
+
 
 @app.route("/orders", methods=["POST"])
 def ordersPost():
 
+    newOrder = json.loads(request.data)
+    order = Order(
+        client_name=newOrder['client_name'],
+        streetAddress=newOrder["streetAddress"],
+        commune=newOrder["commune"],
+        city=newOrder["city"],
+        invoice_id=newOrder["invoice_id"],
+        office_id=newOrder["office_id"],
+        products=newOrder["products"],
+        courrier=newOrder['courrier'],
+        client_email=newOrder['client_email'],
+        cellphone=newOrder['cellphone'])
 
-  newOrder = json.loads(request.data)
-  order = Order(streetAddress=newOrder["streetAddress"], commune=newOrder["commune"], city=newOrder["city"], invoice_id=newOrder["invoice_id"], office_id=newOrder["office_id"], products=newOrder["products"],
-  email=newOrder["email"], cellphone=newOrder["cellphone"])
-  email = request.json.get("email",None)
+    user = User.query.filter_by(email=email).first()
+    if user is None:
+        return jsonify({"msge": "user doesn't exist"}), 400
 
-  user = User.query.filter_by(email=email).first()
-  if user is None:
-    return jsonify({"msge":"user doesn't exist"}),400
+    order.user.append(user)
+    db.session.add(order)
+    db.session.commit()
 
-  order.user.append(user)
-  db.session.add(order)
-  db.session.commit()
+    return jsonify(list(map(lambda item: item.serialize(), Order.query.all()))), 200
 
-  return jsonify(list(map(lambda item: item.serialize(), Order.query.all())))
+@app.route("/tracking", methods=["GET"]) #método GET para las órdenes confirmadas. Es el mismo método GET que para órdenes.
+def getConfirmOrders():
+    confirm_orders = confirm_Order.query.all()
+    confirm_orders_json = list(map(lambda item: item.serialize(), confirm_orders))
+
+    return jsonify(confirm_orders_json)
 
 
-@app.route("/sender-details", methods = ["POST"])
+@app.route("/tracking", methods=["POST"]) #método POST para las órdenes confirmadas. Es el mismo método GET que para órdenes.
+def confirmOrdersPost():
+
+    confirmOrder = json.loads(request.data)
+    confirm_order = ConfirmOrder(
+        client_name=confirmOrder['client_name'],
+        streetAddress=confirmOrder["streetAddress"],
+        commune=confirmOrder["commune"],
+        city=confirmOrder["city"],
+        invoice_id=confirmOrder["invoice_id"],
+        office_id=confirmOrder["office_id"],
+        products=confirmOrder["products"],
+        courrier=confirmOrder['courrier'],
+        client_email=confirmOrder['client_email'],
+        cellphone=confirmOrder['cellphone'])
+
+    user = User.query.filter_by(email=email).first()
+    if user is None:
+        return jsonify({"msge": "user doesn't exist"}), 400
+
+    confirm_order.user.append(user)
+    db.session.add(confirm_order)
+    db.session.commit()
+
+    return jsonify(list(map(lambda item: item.serialize(), ConfirmOrder.query.all()))), 200
+
+
+@app.route("/sender-details", methods=["POST"])
 def sender_detailsPost():
 
+    pickupAddress = PickUpAddress()
 
-  pickupAddress = PickUpAddress()
+    newDetails = json.loads(request.data)
+    sender_details = Sender_details(storeName=newDetails["storeName"], contactName=newDetails["contactName"],
+                                    companyName=newDetails["companyName"], emailContact=newDetails["emailContact"], user_email=newDetails["user_email"])
 
-  newDetails = json.loads(request.data)
-  sender_details = Sender_details(storeName=newDetails["storeName"],contactName=newDetails["contactName"],
-  companyName=newDetails["companyName"],emailContact=newDetails["emailContact"],user_email=newDetails["user_email"])
+    #email = request.json.get("email",None)
+    #pickup = PickUpAddress( Sender_details_id = sender_details.id, address=pickup["address"], city=pickup["city"])
 
- # email = request.json.get("email",None)
-  #pickup = PickUpAddress( Sender_details_id = sender_details.id, address=pickup["address"], city=pickup["city"])
+    db.session.add(sender_details)
+    db.session.commit()
+    snId = Sender_details.query.get(newDetails["user_email"])
+    pickup = PickUpAddress(Sender_details_id=snId.id,
+                           address=pickup["address"], city=pickup["city"])
 
-  db.session.add(sender_details)
-  db.session.commit()
-  snId = Sender_details.query.get(newDetails["user_email"])
-  pickup = PickUpAddress( Sender_details_id = snId.id, address=pickup["address"], city=pickup["city"])
+    user = User.query.filter_by(email=snId).first()
+    if user is None:
+        return jsonify({"msge": "user doesn't exist"}), 400
 
-  user = User.query.filter_by(email=snId).first()
-  if user is None:
-    return jsonify({"msge":"user dosent exist"}),400
+    db.session.add(pickup)
+    db.session.commit()
 
-  db.session.add(pickup)
-  db.session.commit()
-
-  return jsonify(list(map(lambda item: item.serialize(),Sender_details.query.all())))
+    return jsonify(list(map(lambda item: item.serialize(), Sender_details.query.all())))
 
 
-@app.route("/sender-details", methods = ["GET"])
+@app.route("/sender-details", methods=["GET"])
 def senderdetailsGet():
 
-  details = Sender_details.query.all()
-  details_json = list(map(lambda item : item.serialize(), details))
+    details = Sender_details.query.all()
+    details_json = list(map(lambda item: item.serialize(), details))
 
-  return jsonify(details_json)
+    return jsonify(details_json)
 
 
-@app.route("/pick-up-address", methods = ["POST"])
+@app.route("/pick-up-address", methods=["POST"])
 def pickupAddress():
 
-  senderDetails = Sender_details()
-  newpickUp = json.loads(request.data)
+    senderDetails = Sender_details()
+    newpickUp = json.loads(request.data)
 
-  pickUp = PickUpAddress( address=newpickUp["address"],
-   city=newpickUp["city"],Sender_details_id=["sender_details.id"])
+    pickUp = PickUpAddress(address=newpickUp["address"],
+                           city=newpickUp["city"], Sender_details_id=["sender_details.id"])
 
-  db.session.add(pickUp)
+    db.session.add(pickUp)
 
-  email = request.json.get("email",None)
-  user = User.query.filter_by(email=email)
-  if user is None:
-    return jsonify({"msge":"user dosent exist"}),400
+    email = request.json.get("email", None)
+    user = User.query.filter_by(email=email)
+    if user is None:
+        return jsonify({"msge": "user doesn't exist"}), 400
 
-  snId = PickUpAddress.query.get(pickUp["sender_details.id"])
- 
-
+    snId = PickUpAddress.query.get(pickUp["sender_details.id"])
 
 
-
-
-@app.route("/petitions", methods = ["GET"])
+@app.route("/petitions", methods=["GET"])
 def getPetitions():
-  petitions = Petition.query.all()
-  petitions_json = list(map(lambda item: item.serialize(), petitions))
+    petitions = Petition.query.all()
+    petitions_json = list(map(lambda item: item.serialize(), petitions))
 
-  return jsonify(petitions_json)
+    return jsonify(petitions_json)
 
-@app.route("/petitions", methods = ["POST"])
+
+@app.route("/petitions", methods=["POST"])
 def postPetitions():
 
-  newPetition = json.loads(request.data)
-  petition = Petition(id=newPetition["id"], email=newPetition["email"], phone_number=newPetition["phone_number"],description=newPetition["description"],
-  change_or_return=newPetition["change_or_return"])
+    newPetition = json.loads(request.data)
+    petition = Petition(id=newPetition["id"], email=newPetition["email"], phone_number=newPetition["phone_number"], description=newPetition["description"],
+                        change_or_return=newPetition["change_or_return"])
 
-  email = request.json.get("email",None)
+    email = request.json.get("email", None)
 
-  user = User.query.filter_by(email=email)
-  if user is None:
-    return jsonify({"msge":"user dosent exist"}),400
-  
-  petition.Boughtproduct.append(Boughtproduct)  
-  db.session.add(petition)
-  db.session.commit()
+    user = User.query.filter_by(email=email)
+    if user is None:
+        return jsonify({"msge": "user dosent exist"}), 400
 
-  return jsonify(list(map(lambda item: item.serialize(),Petition.query.all())))
+    petition.Boughtproduct.append(Boughtproduct)
+    db.session.add(petition)
+    db.session.commit()
 
-@app.route("/boughtproducts", methods = ["GET"])
+    return jsonify(list(map(lambda item: item.serialize(), Petition.query.all())))
+
+
+@app.route("/boughtproducts", methods=["GET"])
 def getBoughtProducts():
-  boughtProducts = Boughtproduct.query.all()
-  boughtProducts_json = list(map(lambda item: item.seralize(), boughtProducts))
+    boughtProducts = Boughtproduct.query.all()
+    boughtProducts_json = list(
+        map(lambda item: item.seralize(), boughtProducts))
 
-  return jsonify(boughtProducts_json)
+    return jsonify(boughtProducts_json)
 
-@app.route("/boughtproducts", methods = ["POST"])
+
+@app.route("/boughtproducts", methods=["POST"])
 def postBoughtProducts():
-  newBoughtProduct = json.loads(request.data)
-  bought_Product = Boughtproduct(id=newBoughtProduct["id"], name=newBoughtProduct["name"],price=newBoughtProduct["price"],
-  selected=newBoughtProduct["selected"],description=newBoughtProduct["description"])
+    newBoughtProduct = json.loads(request.data)
+    bought_Product = Boughtproduct(id=newBoughtProduct["id"], name=newBoughtProduct["name"], price=newBoughtProduct["price"],
+                                   selected=newBoughtProduct["selected"], description=newBoughtProduct["description"])
 
-  db.session.add(bought_Product)
-  db.session.commit()
+    db.session.add(bought_Product)
+    db.session.commit()
 
-  return jsonify(list(map(lambda item: item.serialize(),Boughtproduct.query.all())))
+    return jsonify(list(map(lambda item: item.serialize(), Boughtproduct.query.all())))
 
-@app.route("/changes", methods = ["GET"])
+
+@app.route("/changes", methods=["GET"])
 def getChanges():
-  changes = Change.query.all()
-  changes_json = list(map(lambda item: item.serialize(),changes))
+    changes = Change.query.all()
+    changes_json = list(map(lambda item: item.serialize(), changes))
 
-  return jsonify(changes_json)
+    return jsonify(changes_json)
 
-@app.route("/changes", methods =["POST"])
+
+@app.route("/changes", methods=["POST"])
 def postChanges():
-  newChange = json.loads(request.data)
-  change = Change(id=newChange["id"], change_product=newChange["change_product"], state=newChange["state"], city=newChange["city"],
-  address=newChange["address"], commune=newChange["commune"])
+    newChange = json.loads(request.data)
+    change = Change(id=newChange["id"], change_product=newChange["change_product"], state=newChange["state"], city=newChange["city"],
+                    address=newChange["address"], commune=newChange["commune"])
 
-  db.session.add(change)
-  db.session.commit()
-  return jsonify(list(map(lambda item: item.serialize(),Change.query.all())))
+    db.session.add(change)
+    db.session.commit()
+    return jsonify(list(map(lambda item: item.serialize(), Change.query.all())))
 
-@app.route("/returns", methods = ["GET"])
+
+@app.route("/returns", methods=["GET"])
 def getReturn():
-  returns = Return.query.all()
-  return_json =  list(map(lambda item: item.serialize(), returns))
+    returns = Return.query.all()
+    return_json = list(map(lambda item: item.serialize(), returns))
 
-  return jsonify(return_json)
+    return jsonify(return_json)
 
-@app.route("/returns", methods = ["POST"])
+
+@app.route("/returns", methods=["POST"])
 def postReturn():
-  
-  newReturn = json.loads(request.data)
-  return_  = Return(id=newReturn["id"], bank=newReturn["bank"],account_type=newReturn["account_type"],account_number=newReturn["account_number"])
 
-  email = request.json.get("email",None)
+    newReturn = json.loads(request.data)
+    return_ = Return(id=newReturn["id"], bank=newReturn["bank"],
+                     account_type=newReturn["account_type"], account_number=newReturn["account_number"])
 
-  user = User.query.filter_by(email=email)
-  if user is None:
-    return jsonify({"msge":"user dosent exist"}),400
-  db.return_.append(user)
-  db.session.add(return_)
-  db.session.commit()
+    email = request.json.get("email", None)
 
-  return jsonify(list(map(lambda item: item.serialize(), Return.query.all())))
+    user = User.query.filter_by(email=email)
+    if user is None:
+        return jsonify({"msge": "user dosent exist"}), 400
+    db.return_.append(user)
+    db.session.add(return_)
+    db.session.commit()
+
+    return jsonify(list(map(lambda item: item.serialize(), Return.query.all())))
+
 
 if __name__ == '__main__':
-  Manager.run()
+    Manager.run()
