@@ -1,4 +1,3 @@
-
 import json
 import os  # librebria de pyhton para comunicarme con mi sistemas de archivos
 from flask import Flask, jsonify, request
@@ -7,6 +6,7 @@ from flask_jwt_extended import (JWTManager, create_access_token,
                                 get_jwt_identity, jwt_required)
 from flask_migrate import Migrate, MigrateCommand
 from flask_script import Manager
+from flask_cors import CORS
 
 from models import (Billing_details, Boughtproduct, Change, Order, Person,
                     Petition, PickUpAddress, Return, Sender_details, Support,
@@ -14,6 +14,7 @@ from models import (Billing_details, Boughtproduct, Change, Order, Person,
 
 BASEDIR = os.path.abspath(os.path.dirname(__file__))
 app = Flask(__name__)
+CORS(app)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + os.path.join(BASEDIR, "test.db")
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JWT_SECRET_KEY'] = 'KS+.:GMk^+ gO,5.#y6c%?SmYE^5+_2P ao)Etk4AA'
@@ -47,7 +48,7 @@ def signUp():
   person = Person()
 
   if not request.is_json:
-    return jsonify({"msge": "Missing Json in request"}),400
+    return jsonify({"msge": "Missing Json in request"}), 400
 
   user.email = request.json.get("email",None)
   user.password = request.json.get("password", None)
@@ -55,13 +56,13 @@ def signUp():
   person.lastname = request.json.get("lastname",None)
   
   if not user.email:
-    return jsonify({"msge": "Misssing email parameter"}),400
+    return jsonify({"msge": "Misssing email parameter"}), 400
   if not user.password:
-    return jsonify({"msge":"Missing password parameter"}),400
+    return jsonify({"msge":"Missing password parameter"}), 400
   if not person.name:
-    return({"mge":"Missing name parameter"}),400
+    return({"mge":"Missing name parameter"}), 400
   if not person.lastname:
-    return({"msge":"Missing lastname parameter"}),400
+    return({"msge":"Missing lastname parameter"}), 400
 
  # user.person.append(person)
   #db.session.add(user)
@@ -87,17 +88,18 @@ def login():
     return({"msge":"Missing password parameter"}),400
   
   user = User.query.filter_by(email=email).first()
+
   if user is None:
-    return jsonify({"msge":"user dosent exist"}),400
+    return jsonify({"msge":"user dosent exist"}), 400
 
   if user.password != password:
-    return jsonify({"msge": "password dont match"}),400
+    return jsonify({"msge": "password dont match"}), 400
 
    # db.session.add(login)
     #db.session.commit()
 
   access_token = create_access_token(identity=email)
-  return jsonify(access_token=access_token),200
+  return jsonify(access_token=access_token), 200
 
 
 
@@ -157,8 +159,6 @@ def postUsers():
   db.session.commit()
 
   return jsonify(list(map(lambda item: item.serialize(), User.query.all())))
-
-    
 
 @app.route("/billingdetails", methods=["GET"])
 def billingDetailsGet():
@@ -221,21 +221,19 @@ def getOrders():
 @app.route("/orders", methods=["POST"])
 def ordersPost():
 
-  order = Order()
-
   newOrder = json.loads(request.data)
-  order_ = Order(address=newOrder["address"], cellphone=newOrder["cellphone"], city=newOrder["city"], email=newOrder["email"], orderNumber=newOrder["orderNumber"], phone=newOrder["phone"], postCode=newOrder["postCode"], recipient=newOrder["recipient"], streetAddress=newOrder["streetAddress"])
+  order = Order(streetAddress=newOrder["streetAddress"], commune=newOrder["commune"], city=newOrder["city"], invoice_id=newOrder["invoice_id"], office_id=newOrder["office_id"], products=newOrder["products"], client_email=newOrder["client_email"], cellphone=newOrder["cellphone"])
   email = request.json.get("email",None)
 
   user = User.query.filter_by(email=email).first()
   if user is None:
-    return jsonify({"msge":"user doesn't exist"}),400
+    return jsonify({"msge":"user doesn't exist"}), 400
 
   order.user.append(user)
   db.session.add(order)
   db.session.commit()
 
-  return jsonify(list(map(lambda item: item.serialize(), Order.query.all())))
+  return jsonify(list(map(lambda item: item.serialize(), Order.query.all()))), 200
 
 
 @app.route("/sender-details", methods = ["POST"])
@@ -287,8 +285,6 @@ def pickupAddress():
     return jsonify({"msge":"user dosent exist"}),400
 
   pickup_address.user.append(user)
-
-
 
 @app.route("/petitions", methods = ["GET"])
 def getPetitions():
@@ -374,6 +370,8 @@ def postReturn():
   db.session.commit()
 
   return jsonify(list(map(lambda item: item.serialize(), Return.query.all())))
+
+#.
 
 if __name__ == '__main__':
   Manager.run()

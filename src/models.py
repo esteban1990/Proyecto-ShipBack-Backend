@@ -1,5 +1,8 @@
+ #-*- coding: utf-8 -*-
+
 from flask_sqlalchemy import SQLAlchemy
 from random import randint
+
 db = SQLAlchemy()
 
 #Me traje la clase person y user del ejemplo visto en el curso por si se utiliza para generar el log in.
@@ -75,70 +78,30 @@ class Return(db.Model):
             "account_number": self.account_number
         }
 
-# class Order(db.Model):
-#      id = db.Column(db.Integer, primary_key=True)
-#      entrepreneur_name = db.Column(db.String(50), nullable=False)
-#      entrepreneur_lastname = db.Column(db.String(50), nullable=False)
-#      entrepreneur_email = db.Column (db.String(50), nullable=False)
-#      client_name = db.Column(db.String(50), nullable=False) 
-#      client_lastname = db.Column(db.String(50), nullable=False)
-#      client_email = db.Column(db.String(50), nullable=False) 
-#      booked_date = db.Column(db.DateTime, nullable=False)
-#      city = db.Column(db.String(50), nullable=False)
-#      state = db.Column(db.String(50), nullable=False)
-#      courrier = db.Column(db.String(50), nullable=False)
-#      cost = db.Column(db.Integer, nullable=False)
-#      number_of_packages = db.Column(db.Integer, nullable=False)
-#      invoice_number = db.Column(db.Integer, nullable=False)
-#      postCode = db.Column(db.Integer, nullable=False)
-#      user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
-
-#      def serialize(self):
-#         return{
-#             "id": self.id,
-#             "entrepreneur_name": self.entrepreneur_name,
-#             "entrepreneur_lastname": self.entrepreneur_lastname,
-#             "entrepreneur_email": self.entrepreneur_email,
-#             "client_name": self.client_name,
-#             "client_lastname": self.client_lastname,
-#             "client_email": self.client_email,
-#             "booked_date": self.booked_date,
-#             "city": self.city,
-#             "state": self.state,
-#             "courrier": self.courrier,
-#             "cost": self.cost,
-#             "number_of_packages": self.number_of_packages,
-#             "invoice_number": self.invoice_number,
-#             "postCode": self.postCode
-#         }
-
-# NUEVA ORDEN ATTILIO # 
-
 class Order(db.Model): 
      id = db.Column(db.Integer, primary_key=True)
-     address= db.Column(db.String(50), nullable=False)
+     streetAddress = db.Column(db.String(50), nullable=False)
+     commune=db.Column(db.String(50), nullable=False)
+     city=db.Column(db.String(50), nullable=False)
+     invoice_id=db.Column(db.Integer, nullable=False)
+     office_id=db.Column(db.Integer, nullable=False)
+     products=db.Column(db.String(50), nullable=False)
+     client_email=db.Column(db.String(50), nullable=False)
      cellphone=db.Column(db.Integer, nullable=False)
-     city=db.Column(db.Integer, nullable=False)
-     email=db.Column(db.String(50), nullable=False)
-     orderNumber=db.Column(db.String(50), nullable=False)
-     phone=db.Column(db.String(50), nullable=False)
-     postCode=db.Column(db.Integer, nullable=False)
-     recipient=db.Column(db.String(50), nullable=False)
-     streetAddress=db.Column(db.String(50), nullable=False)
      user_email = db.Column(db.String(255), db.ForeignKey('user.email'), nullable=True)
 
      def serialize(self):
         return{
             "id": self.id,
-            "address": self.address,
-            "cellphone": self.cellphone,
+            "streetAddress": self.id,
+            "commune": self.id,
             "city": self.city,
+            "invoice_id": self.invoice_id,
+            "office_id": self.office_id,
+            "products": self.products,
             "email": self.email,
-            "orderNumber": self.orderNumber,
-            "phone": self.phone,
-            "postCode": self.postCode,
-            "recipient": self.recipient,
-            "streetAddress": self.streetAddress
+            "cellphone": self.cellphone,
+            "user_email": self.user_email,
         }
 
 class Billing_details(db.Model):
