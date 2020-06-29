@@ -7,13 +7,14 @@ from flask_jwt_extended import (JWTManager, create_access_token,
                                 get_jwt_identity, jwt_required)
 from flask_migrate import Migrate, MigrateCommand
 from flask_script import Manager
-
+from flask_cors  import CORS
 from models import (Billing_details, Boughtproduct, Change, Order, Person,
                     Petition, PickUpAddress, Return, Sender_details, Support,
                     User, db)
 
 BASEDIR = os.path.abspath(os.path.dirname(__file__))
 app = Flask(__name__)
+CORS(app)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + os.path.join(BASEDIR, "test.db")
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JWT_SECRET_KEY'] = 'KS+.:GMk^+ gO,5.#y6c%?SmYE^5+_2P ao)Etk4AA'
@@ -170,21 +171,23 @@ def billingDetailsGet():
 @app.route("/billingdetails", methods = ["POST"])
 def billingDetailsPost():
 
-  billing_details = Billing_details()
+  #billing_details = Billing_details()#esta demas esta linea no es necesario..
 
   newInfo = json.loads(request.data)
-  info = Billing_details(id=newInfo["id"], cvv=newInfo["cvv"],cardNumber=newInfo["cardNumber"],expiration_date=newInfo["expiration_date"])
+  info = Billing_details(id=newInfo["id"], cvv=newInfo["cvv"],cardNumber=newInfo["cardNumber"],expiration_date=newInfo["expiration_date"],
+  user_email=newInfo["user_email"])
 
-  email = request.json.get("email",None)
+  #email = request.json.get("email",None)
 
-  user = User.query.filter_by(email=email).first()
+  user = User.query.filter_by(email=newInfo["user_email"]).first()
   if user is None:
     return jsonify({"msge":"user dosent exist"}),400
 
-  Billing_details.user.append(user)
+ # Billing_details.user.append(user)
   db.session.add(info)
   db.session.commit()
 
+  # si se necista esta infromacion en el front end????
   return jsonify(list(map(lambda item : item.serialize(),Billing_details.query.all())))
 
 # @app.route("/orders", methods=["GET"])
@@ -221,10 +224,10 @@ def getOrders():
 @app.route("/orders", methods=["POST"])
 def ordersPost():
 
-  order = Order()
 
   newOrder = json.loads(request.data)
-  order_ = Order(address=newOrder["address"], cellphone=newOrder["cellphone"], city=newOrder["city"], email=newOrder["email"], orderNumber=newOrder["orderNumber"], phone=newOrder["phone"], postCode=newOrder["postCode"], recipient=newOrder["recipient"], streetAddress=newOrder["streetAddress"])
+  order = Order(streetAddress=newOrder["streetAddress"], commune=newOrder["commune"], city=newOrder["city"], invoice_id=newOrder["invoice_id"], office_id=newOrder["office_id"], products=newOrder["products"],
+  email=newOrder["email"], cellphone=newOrder["cellphone"])
   email = request.json.get("email",None)
 
   user = User.query.filter_by(email=email).first()
@@ -241,22 +244,26 @@ def ordersPost():
 @app.route("/sender-details", methods = ["POST"])
 def sender_detailsPost():
 
-  
+
   pickupAddress = PickUpAddress()
 
   newDetails = json.loads(request.data)
-  sender_details = Sender_details(id=newDetails["id"], storeName=newDetails["storeName"],contactName=newDetails["contactName"],
-  companyName=newDetails["companyName"],emailContact=newDetails["emailContact"])
+  sender_details = Sender_details(storeName=newDetails["storeName"],contactName=newDetails["contactName"],
+  companyName=newDetails["companyName"],emailContact=newDetails["emailContact"],user_email=newDetails["user_email"])
 
-  email = request.json.get("email",None)
+ # email = request.json.get("email",None)
+  #pickup = PickUpAddress( Sender_details_id = sender_details.id, address=pickup["address"], city=pickup["city"])
 
-  user = User.query.filter_by(email=email).first()
+  db.session.add(sender_details)
+  db.session.commit()
+  snId = Sender_details.query.get(newDetails["user_email"])
+  pickup = PickUpAddress( Sender_details_id = snId.id, address=pickup["address"], city=pickup["city"])
+
+  user = User.query.filter_by(email=snId).first()
   if user is None:
     return jsonify({"msge":"user dosent exist"}),400
 
-  sender_details.user.append(user)
-  sender_details.PickUpAddress.append(pickupAddress)
-  db.session.add(sender_details)
+  db.session.add(pickup)
   db.session.commit()
 
   return jsonify(list(map(lambda item: item.serialize(),Sender_details.query.all())))
@@ -274,19 +281,23 @@ def senderdetailsGet():
 @app.route("/pick-up-address", methods = ["POST"])
 def pickupAddress():
 
-  pickup_address = PickUpAddress()
-
+  senderDetails = Sender_details()
   newpickUp = json.loads(request.data)
-  pickUp = PickUpAddress(id=newpickUp["id"], address=newpickUp["address"],
-   city=newpickUp["city"],user_email=newpickUp["user_email"])
+
+  pickUp = PickUpAddress( address=newpickUp["address"],
+   city=newpickUp["city"],Sender_details_id=["sender_details.id"])
+
+  db.session.add(pickUp)
 
   email = request.json.get("email",None)
-
   user = User.query.filter_by(email=email)
   if user is None:
     return jsonify({"msge":"user dosent exist"}),400
 
-  pickup_address.user.append(user)
+  snId = PickUpAddress.query.get(pickUp["sender_details.id"])
+ 
+
+
 
 
 

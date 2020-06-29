@@ -16,6 +16,7 @@ flask-jwt-extended = "*"
 flask-bcrypt = "*"
 flask-script = "*"
 models = "*"
+flask-cors = "*"
 
 [script]
 start= "python src/app.py"

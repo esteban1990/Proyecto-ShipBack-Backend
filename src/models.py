@@ -116,29 +116,27 @@ class Return(db.Model):
 
 class Order(db.Model): 
      id = db.Column(db.Integer, primary_key=True)
-     address= db.Column(db.String(50), nullable=False)
-     cellphone=db.Column(db.Integer, nullable=False)
-     city=db.Column(db.Integer, nullable=False)
+     streetAddress = db.Column(db.String(50), nullable=False)
+     commune=db.Column(db.String(50), nullable=False)
+     city=db.Column(db.String(50), nullable=False)
+     invoice_id=db.Column(db.Integer, nullable=False)
+     office_id=db.Column(db.Integer, nullable=False)
+     products=db.Column(db.String(50), nullable=False)
      email=db.Column(db.String(50), nullable=False)
-     orderNumber=db.Column(db.String(50), nullable=False)
-     phone=db.Column(db.String(50), nullable=False)
-     postCode=db.Column(db.Integer, nullable=False)
-     recipient=db.Column(db.String(50), nullable=False)
-     streetAddress=db.Column(db.String(50), nullable=False)
+     cellphone=db.Column(db.Integer, nullable=False)
      user_email = db.Column(db.String(255), db.ForeignKey('user.email'), nullable=True)
-
      def serialize(self):
         return{
             "id": self.id,
-            "address": self.address,
-            "cellphone": self.cellphone,
+            "streetAddress": self.id,
+            "commune": self.id,
             "city": self.city,
+            "invoice_id": self.invoice_id,
+            "office_id": self.office_id,
+            "products": self.products,
             "email": self.email,
-            "orderNumber": self.orderNumber,
-            "phone": self.phone,
-            "postCode": self.postCode,
-            "recipient": self.recipient,
-            "streetAddress": self.streetAddress
+            "cellphone": self.cellphone,
+            "user_email": self.user_email,
         }
 
 class Billing_details(db.Model):
@@ -225,7 +223,7 @@ class Person(db.Model):
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(255), nullable=False)
-    password= db.Column(db.String(255), nullable=False)
+    password = db.Column(db.String(255), nullable=False)
     person_id = db.Column(db.Integer, db.ForeignKey("person.id"), nullable=True)
     orders = db.relationship("Order", backref="user", lazy=True)
 
