@@ -9,7 +9,7 @@ from flask_script import Manager
 from flask_cors import CORS
 
 from models import (Billing_details, Boughtproduct, Change, Order, Person,
-                    Petition, PickUpAddress, Return, Sender_details,
+                    Petition, PickUpAddress, Return, Sender_details, ConfirmOrder,
                     User, db)
 
 BASEDIR = os.path.abspath(os.path.dirname(__file__))
@@ -151,7 +151,9 @@ def getUsers():
 @app.route("/users", methods=["POST"])
 def postUsers():
     newUser = json.loads(request.data)
-    user = User(email=newUser["email"], password=newUser["password"])
+    user = User(
+        email=newUser["email"], 
+        password=newUser["password"])
     db.session.add(user)
     db.session.commit()
 
@@ -198,7 +200,8 @@ def getOrders():
 @app.route("/orders", methods=["POST"])
 def ordersPost():
 
-    newOrder = json.loads(request.data)
+    newOrder = json.loads(request.data) #revisar.
+
     order = Order(
         client_name=newOrder['client_name'],
         streetAddress=newOrder["streetAddress"],
@@ -210,12 +213,15 @@ def ordersPost():
         courrier=newOrder['courrier'],
         client_email=newOrder['client_email'],
         cellphone=newOrder['cellphone'])
+        #Cuando creas tu orden va a tener por defecto a tu estado, se genera la tabla, con estado 0, tú en el get en la tabla de órdenes creadas que tengan 0
+        #Confirm te genera un estado 1
+        #PUT, y cambia el estado.
 
-    user = User.query.filter_by(email=email).first()
-    if user is None:
-        return jsonify({"msge": "user doesn't exist"}), 400
+    #user = User.query.filter_by(email=user.email).first() 
+    #if user is None:
+    #    return jsonify({"msge": "user doesn't exist"}), 400
 
-    order.user.append(user)
+    #order.user.append(user)
     db.session.add(order)
     db.session.commit()
 

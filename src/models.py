@@ -107,7 +107,7 @@ class Order(db.Model):
     courrier = db.Column(db.String(50), nullable=False) #se agrega courrier.
     client_email = db.Column(db.String(50), nullable=False)
     cellphone = db.Column(db.Integer, nullable=False)
-    user_email = db.Column(db.String(255), db.ForeignKey('user.email'), nullable=True)
+    #user_email = db.Column(db.String(255), db.ForeignKey('user.email'), nullable=True)
 
     def serialize(self):
         return{
@@ -120,9 +120,9 @@ class Order(db.Model):
             "office_id": self.office_id,
             "products": self.products,
             "courrier": self.courrier,
-            "client_email": self.cemail,
+            "client_email": self.client_email,
             "cellphone": self.cellphone,
-            "user_email": self.user_email,
+            #"user_email": self.user_email,
         }
     
     def _generateId(self): 
@@ -144,7 +144,7 @@ class ConfirmOrder(db.Model): #tabla para órdenes confirmadas, tiene los mismos
 
     def serialize(self):
         return{
-            "id": self.id,
+            "id": self._generateId(),
             "client_name": self.client_name,
             "streetAddress": self.streetAddress,
             "commune": self.commune,
@@ -246,7 +246,7 @@ class User(db.Model):
     email = db.Column(db.String(255), nullable=False)
     password = db.Column(db.String(255), nullable=False)
     person_id = db.Column(db.Integer, db.ForeignKey("person.id"), nullable=True)
-    orders = db.relationship("Order", backref="user", lazy=True)
+    #orders = db.relationship("Order", backref="user", lazy=True)
 
     def serialize(self):
         return{
