@@ -229,7 +229,7 @@ def ordersPost():
 
 @app.route("/tracking", methods=["GET"]) #método GET para las órdenes confirmadas. Es el mismo método GET que para órdenes.
 def getConfirmOrders():
-    confirm_orders = confirm_Order.query.all()
+    confirm_orders = ConfirmOrder.query.all()
     confirm_orders_json = list(map(lambda item: item.serialize(), confirm_orders))
 
     return jsonify(confirm_orders_json)
