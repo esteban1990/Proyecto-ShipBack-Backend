@@ -1,5 +1,6 @@
 import json
 import os
+import re
 from flask import Flask, jsonify, request
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import (JWTManager, create_access_token,
@@ -8,7 +9,7 @@ from flask_migrate import Migrate, MigrateCommand
 from flask_script import Manager
 from flask_cors import CORS
 
-from models import (Billing_details, Boughtproduct, Change, Order, Person,
+from models import (Billing_details, Boughtproduct, Change, Order,
                     Petition, PickUpAddress, Return, Sender_details, ConfirmOrder,
                     User, db)
 
@@ -26,79 +27,105 @@ db.init_app(app)
 Manager = Manager(app)
 Manager.add_command("db", MigrateCommand)
 
-@app.route("/persons", methods=["GET"])
-def getPersons():
-    persons = Person.query.all()
-    persons_json = list(map(lambda item: item.serialize(), persons))
 
-    return jsonify(persons_json)
+#@app.route("/persons", methods=["GET"])
+#def getPersons():
+#    persons = Person.query.all()
+#    persons_json = list(map(lambda item: item.serialize(), persons))
+#
+#    return jsonify(persons_json)
 
 
-@app.route("/persons", methods=["POST"])
-def postPersons():
-    newPerson = json.loads(request.data)
-    person = Person(name=newPerson["name"], lastname=newPerson["lastname"])
-    db.session.add(person)
-    db.session.commit()
-
-    return jsonify(list(map(lambda item: item.serialize(), Person.query.all())))
+#@app.route("/persons", methods=["POST"])
+#def postPersons():
+#    newPerson = json.loads(request.data)
+#    person = Person(name=newPerson["name"], lastname=newPerson["lastname"])
+#    db.session.add(person)
+#    db.session.commit()
+#
+#    return jsonify(list(map(lambda item: item.serialize(), Person.query.all())))
 
 
 @app.route("/signup", methods=["POST"])
 def signUp():
+        #Regular expression that checks a valid email
+        ereg = '^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$'
+        #Regular expression that checks a valid password
+        preg = '^.*(?=.{8,})(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).*$'
+        # Instancing the a new user
+        user = User()
+        #Checking email 
+        if (re.search(ereg,request.json.get("email"))):
+            user.email = request.json.get("email")
+        else:
+            return "Invalid email format", 400
+        #Checking password
+        if (re.search(preg,request.json.get('password'))):
+            pw_hash = bcrypt.generate_password_hash(request.json.get("password"))
+            user.password = pw_hash
+        else:
+            return "Invalid password format", 400
+        #Ask for everything else
+        user.firstname = request.json.get("firstname")
+        user.lastname = request.json.get("lastname")
+        
+        db.session.add(user)
 
-    user = User()
-    person = Person()
+        db.session.commit()
 
-    if not request.is_json:
-        return jsonify({"msge": "Missing Json in request"}), 400
+        return jsonify({"success": True}), 201 
 
-    user.email = request.json.get("email", None)
-    user.password = request.json.get("password", None)
-    person.name = request.json.get("name", None)
-    person.lastname = request.json.get("lastname", None)
+@app.route("/user/<int:id>", methods=["DELETE", "GET", "PUT"])
+@app.route("/users", methods=["GET"])
+def user(id=None):
+    if request.method == "GET":
+        if id is not None:
+            user = User.query.get(id)
+            return jsonify(user.serialize()), 200
+        else:
+            user = User.query.all()
+            users = list(map(lambda user: user.serialize(), user))
+            return jsonify(users), 200
 
-    if not user.email:
-        return jsonify({"msge": "Misssing email parameter"}), 400
-    if not user.password:
-        return jsonify({"msge": "Missing password parameter"}), 400
-    if not person.name:
-        return({"mge": "Missing name parameter"}), 400
-    if not person.lastname:
-        return({"msge": "Missing lastname parameter"}), 400
+    if request.method == "DELETE": 
+        user = User.query.get(id)
+        db.session.delete(user)
+        db.session.commit()
+        return "User has been deleted", 200
 
-    person.users.append(user)
-    db.session.add(person)
-    db.session.commit()
+    if request.method == "PUT":
+        if id is not None: 
+            user = User.query.get(id)
+            user.firstname = request.json.get("firstname")
+            db.session.commit()
+            return jsonify(user.serialize()), 201
+
 
 
 @app.route("/login", methods=["POST"])
 def login():
- #newLogin = json.loads(request.data)
- #login = User(email=newLogin["email"],password=newLogin["password"])
-
     if not request.is_json:
-        return jsonify({"msge": "Missing Json in request"}), 400
-    email = request.json.get("email", None)
-    password = request.json.get("password", None)
+        return jsonify({"msg": "Missing JSON in request"}), 400
+    email = request.json.get('email', None)
+    password = request.json.get('password', None)
     if not email:
-        return jsonify({"msge": "Misssing email parameter"}), 400
+        return jsonify({"msg": "Missing email parameter"}), 400
     if not password:
-        return({"msge": "Missing password parameter"}), 400
-
+        return jsonify({"msg": "Missing password parameter"}), 400
+    
     user = User.query.filter_by(email=email).first()
 
     if user is None:
-        return jsonify({"msge": "user dosent exist"}), 400
-
-    if user.password != password:
-        return jsonify({"msge": "password dont match"}), 400
-
-       # db.session.add(login)
-        # db.session.commit()
-
-    access_token = create_access_token(identity=email)
-    return jsonify(access_token=access_token), 200
+        return jsonify({"msg": "Email not found"}), 404
+    
+    if bcrypt.check_password_hash(user.password, password):
+        access_token = create_access_token(identity=email)
+        data = {
+            "access_token": access_token,
+            "user" : user.serialize(),
+            "msg": "success"
+        }
+        return jsonify(data), 200
 
 
 @app.route("/login", methods=["GET"])
@@ -140,24 +167,24 @@ def forgotPasswordUser():
         db.session.commit()
 
 
-@app.route("/users", methods=["GET"])
-def getUsers():
-    users = User.query.all()
-    users_json = list(map(lambda item: item.serialize(), users))
+#@app.route("/users", methods=["GET"])
+#def getUsers():
+#    users = User.query.all()
+#    users_json = list(map(lambda item: item.serialize(), users))
+#
+#    return jsonify(users_json)
 
-    return jsonify(users_json)
 
+#@app.route("/users", methods=["POST"])
+#def postUsers():
+#    newUser = json.loads(request.data)
+#    user = User(
+#        email=newUser["email"], 
+#        password=newUser["password"])
+#    db.session.add(user)
+#    db.session.commit()
 
-@app.route("/users", methods=["POST"])
-def postUsers():
-    newUser = json.loads(request.data)
-    user = User(
-        email=newUser["email"], 
-        password=newUser["password"])
-    db.session.add(user)
-    db.session.commit()
-
-    return jsonify(list(map(lambda item: item.serialize(), User.query.all())))
+#    return jsonify(list(map(lambda item: item.serialize(), User.query.all())))
 
 
 @app.route("/billingdetails", methods=["GET"])
@@ -176,7 +203,7 @@ def billingDetailsPost():
     info = Billing_details(id=newInfo["id"], cvv=newInfo["cvv"], cardNumber=newInfo["cardNumber"], expiration_date=newInfo["expiration_date"],
                            user_email=newInfo["user_email"])
 
-    #email = request.json.get("email",None)
+    # email = request.json.get("email",None)
 
     user = User.query.filter_by(email=newInfo["user_email"]).first()
     if user is None:
@@ -213,15 +240,15 @@ def ordersPost():
         courrier=newOrder['courrier'],
         client_email=newOrder['client_email'],
         cellphone=newOrder['cellphone'])
-        #Cuando creas tu orden va a tener por defecto a tu estado, se genera la tabla, con estado 0, tú en el get en la tabla de órdenes creadas que tengan 0
-        #Confirm te genera un estado 1
-        #PUT, y cambia el estado.
+        # Cuando creas tu orden va a tener por defecto a tu estado, se genera la tabla, con estado 0, tú en el get en la tabla de órdenes creadas que tengan 0
+        # Confirm te genera un estado 1
+        # PUT, y cambia el estado.
 
-    #user = User.query.filter_by(email=user.email).first() 
-    #if user is None:
+    # user = User.query.filter_by(email=user.email).first() 
+    # if user is None:
     #    return jsonify({"msge": "user doesn't exist"}), 400
 
-    #order.user.append(user)
+    # order.user.append(user)
     db.session.add(order)
     db.session.commit()
 
@@ -271,8 +298,8 @@ def sender_detailsPost():
     sender_details = Sender_details(storeName=newDetails["storeName"], contactName=newDetails["contactName"],
                                     companyName=newDetails["companyName"], emailContact=newDetails["emailContact"], user_email=newDetails["user_email"])
 
-    #email = request.json.get("email",None)
-    #pickup = PickUpAddress( Sender_details_id = sender_details.id, address=pickup["address"], city=pickup["city"])
+    # email = request.json.get("email",None)
+    # pickup = PickUpAddress( Sender_details_id = sender_details.id, address=pickup["address"], city=pickup["city"])
 
     db.session.add(sender_details)
     db.session.commit()

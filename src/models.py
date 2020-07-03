@@ -222,38 +222,44 @@ class PickUpAddress(db.Model):
         return randint(0, 99999999)
 
 
-class Person(db.Model):
-    __tablename__ = 'person'
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(50), nullable=False)
-    lastname = db.Column(db.String(50), nullable=False)
-    users = db.relationship("User", backref="person", lazy=True)
+#class Person(db.Model):
+#    __tablename__ = 'person'
+#    id = db.Column(db.Integer, primary_key=True)
+#    name = db.Column(db.String(50), nullable=False)
+#    lastname = db.Column(db.String(50), nullable=False)
+#    users = db.relationship("User", backref="person", lazy=True)
 
-    def serialize(self):
-        return{
-            "id": self.id,
-            "name": self.name,
-            "lastname": self.lastname,
-
-        }
-
-    def _generateId(self):
-        return randint(0, 99999999)
+#    def serialize(self):
+#        return{
+#            "id": self.id,
+#            "name": self.name,
+#            "lastname": self.lastname,
+#
+#        }
+#
+#    def _generateId(self):
+#        return randint(0, 99999999)
 
 
 class User(db.Model):
+    __tablename__="user"
     id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(255), nullable=False)
-    password = db.Column(db.String(255), nullable=False)
-    person_id = db.Column(db.Integer, db.ForeignKey("person.id"), nullable=True)
+    password = db.Column(db.String(150), nullable=False)
+    email = db.Column(db.String(150), nullable=False, unique=True)
+    firstname = db.Column(db.String(150), nullable=False)
+    lastname = db.Column(db.String(150), nullable=False)
+    #person_id = db.Column(db.Integer, db.ForeignKey("person.id"), nullable=True)
     #orders = db.relationship("Order", backref="user", lazy=True)
+
+    def __repr__(self):
+        return "<User %r>" % self.email
 
     def serialize(self):
         return{
             "id": self.id,
             "email": self.email,
-            "password": self.password
-
+            "firstname": self.firstname,
+            "lastname": self.lastname
         }
 
     def update_user(self, id,):
