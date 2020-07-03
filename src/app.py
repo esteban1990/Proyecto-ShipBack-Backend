@@ -196,6 +196,74 @@ def getOrders():
 
     return jsonify(orders_json)
 
+#@app.route("/orders", methods=["PUT"])
+#def putOrders():
+ #   if not request.is_json:
+  #      return jsonify({"msge": "Missing Json in request"}), 400
+
+   # order = Order.query.get(order)
+
+    #id = request.json.get("id", None)
+    #client_email = request.json.get("client_name", None)
+    #streetAddress = request.json.get("streetAddress", None)
+    #commune =request.json.get("commune", None)
+    #city = request.json.get("city", None)
+    #invoice_id = request.json.get("invoice_id", None)
+    #office_id = request.json.get("office_id",None)
+    #products = request.json.get("products", None)
+    #courrier = request.json.get("courrier",None)
+    #cellphone = request.json.get("cellphone", None) 
+
+
+    #if not id:
+     #   return jsonify({"msge": "Misssing email parameter"}), 400
+
+    #if not client_email:
+      #  return({"msge": "Missing password parameter"}), 400
+
+    #if not streetAddress:
+     #   return({"msge": "Missing password parameter"}), 400
+
+    
+    #if not commune:
+     #   return jsonify({"msge": "Misssing email parameter"}), 400
+
+    #if not city:
+     #   return({"msge": "Missing password parameter"}), 400
+
+    #if not invoice_id:
+      #  return({"msge": "Missing password parameter"}), 400
+    
+    #if not office_id:
+     #   return({"msge": "Missing password parameter"}), 400
+
+    #if not products:
+     #   return({"msge": "Missing password parameter"}), 400
+
+    
+    #if not courrier:
+    #    return jsonify({"msge": "Misssing email parameter"}), 400
+
+    #user = User.query.filter_by(email=email).first()
+    #if user is None:
+     #   return jsonify({"msge": "user dosent exist"}), 400
+
+
+
+@app.route("/orders/<int:invoice_id>", methods=["DELETE"])
+def deleteOrder(invoice_id):
+  if invoice_id is None:
+      return jsonify({"msge":"bad request"}),400
+  order = Order.query.filter_by(invoice_id=invoice_id).first()
+  if not order:
+    return jsonify({"msge":"Order not Found"}),400
+  #delete palabra reserverda en accion siguiente??
+  db.session.delete(order)
+  db.session.commit()
+  return jsonify({"msge": "Order has been deleted"}),200
+
+
+
 
 @app.route("/orders", methods=["POST"])
 def ordersPost():
@@ -227,6 +295,13 @@ def ordersPost():
 
     return jsonify(list(map(lambda item: item.serialize(), Order.query.all()))), 200
 
+
+
+
+   
+
+
+
 @app.route("/tracking", methods=["GET"]) #método GET para las órdenes confirmadas. Es el mismo método GET que para órdenes.
 def getConfirmOrders():
     confirm_orders = ConfirmOrder.query.all()
@@ -235,31 +310,31 @@ def getConfirmOrders():
     return jsonify(confirm_orders_json)
 
 
-@app.route("/tracking", methods=["POST"]) #método POST para las órdenes confirmadas. Es el mismo método GET que para órdenes.
-def confirmOrdersPost():
+#@app.route("/tracking", methods=["PUT"]) #método POST para las órdenes confirmadas. Es el mismo método GET que para órdenes.
+#def confirmOrdersPut():
 
-    confirmOrder = json.loads(request.data)
-    confirm_order = ConfirmOrder(
-        client_name=confirmOrder['client_name'],
-        streetAddress=confirmOrder["streetAddress"],
-        commune=confirmOrder["commune"],
-        city=confirmOrder["city"],
-        invoice_id=confirmOrder["invoice_id"],
-        office_id=confirmOrder["office_id"],
-        products=confirmOrder["products"],
-        courrier=confirmOrder['courrier'],
-        client_email=confirmOrder['client_email'],
-        cellphone=confirmOrder['cellphone'])
+ #   confirmOrder = json.loads(request.data)
+  #  confirm_order = ConfirmOrder(
+   #     client_name=confirmOrder['client_name'],
+    #    streetAddress=confirmOrder["streetAddress"],
+     #   commune=confirmOrder["commune"],
+      #  city=confirmOrder["city"],
+       # invoice_id=confirmOrder["invoice_id"],
+       # office_id=confirmOrder["office_id"],
+       # products=confirmOrder["products"],
+       # courrier=confirmOrder['courrier'],
+       # client_email=confirmOrder['client_email'],
+        #cellphone=confirmOrder['cellphone'])
 
-    user = User.query.filter_by(email=email).first()
-    if user is None:
-        return jsonify({"msge": "user doesn't exist"}), 400
+    #user = User.query.filter_by(email=user.email).first() 
+    #if user is None:
+     # return jsonify({"msge": "user doesn't exist"}), 400
 
-    confirm_order.user.append(user)
-    db.session.add(confirm_order)
-    db.session.commit()
+    #confirm_order.user.append(user)
+    #db.session.add(confirm_order)
+    #db.session.commit()
 
-    return jsonify(list(map(lambda item: item.serialize(), ConfirmOrder.query.all()))), 200
+   # return jsonify(list(map(lambda item: item.serialize(), ConfirmOrder.query.all()))), 200
 
 
 @app.route("/sender-details", methods=["POST"])
