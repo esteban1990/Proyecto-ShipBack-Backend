@@ -107,7 +107,7 @@ class Order(db.Model):
     courrier = db.Column(db.String(50), nullable=False) #se agrega courrier.
     client_email = db.Column(db.String(50), nullable=False)
     cellphone = db.Column(db.Integer, nullable=False)
-    #user_email = db.Column(db.String(255), db.ForeignKey('user.email'), nullable=True)
+    user_email = db.Column(db.String(255), db.ForeignKey('user.email'), nullable=True)
 
     def serialize(self):
         return{
@@ -122,44 +122,12 @@ class Order(db.Model):
             "courrier": self.courrier,
             "client_email": self.client_email,
             "cellphone": self.cellphone,
-            #"user_email": self.user_email,
-        }
-    
-    def _generateId(self): 
-        return randint(0, 99999999)
-
-class ConfirmOrder(db.Model): #tabla para órdenes confirmadas, tiene los mismos atributos que "Order".
-    id = db.Column(db.Integer, primary_key=True)
-    client_name = db.Column(db.String(50), nullable=False)
-    streetAddress = db.Column(db.String(50), nullable=False)
-    commune = db.Column(db.String(50), nullable=False)
-    city = db.Column(db.String(50), nullable=False)
-    invoice_id = db.Column(db.Integer, nullable=False)
-    office_id = db.Column(db.Integer, nullable=False)
-    products = db.Column(db.String(50), nullable=False)
-    courrier = db.Column(db.String(50), nullable=False)
-    client_email = db.Column(db.String(50), nullable=False)
-    cellphone = db.Column(db.Integer, nullable=False)
-    user_email = db.Column(db.String(255), db.ForeignKey('user.email'), nullable=True)
-
-    def serialize(self):
-        return{
-            "id": self._generateId(),
-            "client_name": self.client_name,
-            "streetAddress": self.streetAddress,
-            "commune": self.commune,
-            "city": self.city,
-            "invoice_id": self.invoice_id,
-            "office_id": self.office_id,
-            "products": self.products,
-            "courrier": self.courrier,
-            "client_email": self.cemail,
-            "cellphone": self.cellphone,
             "user_email": self.user_email,
         }
     
     def _generateId(self): 
         return randint(0, 99999999)
+
 
 
 class Billing_details(db.Model):
@@ -222,38 +190,28 @@ class PickUpAddress(db.Model):
         return randint(0, 99999999)
 
 
-class Person(db.Model):
-    __tablename__ = 'person'
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(50), nullable=False)
-    lastname = db.Column(db.String(50), nullable=False)
-    users = db.relationship("User", backref="person", lazy=True)
 
-    def serialize(self):
-        return{
-            "id": self.id,
-            "name": self.name,
-            "lastname": self.lastname,
-
-        }
-
-    def _generateId(self):
-        return randint(0, 99999999)
 
 
 class User(db.Model):
+    __tablename__="user"
     id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(255), nullable=False)
-    password = db.Column(db.String(255), nullable=False)
-    person_id = db.Column(db.Integer, db.ForeignKey("person.id"), nullable=True)
+    password = db.Column(db.String(150), nullable=False)
+    email = db.Column(db.String(150), nullable=False, unique=True)
+    firstname = db.Column(db.String(150), nullable=False)
+    lastname = db.Column(db.String(150), nullable=False)
+    #person_id = db.Column(db.Integer, db.ForeignKey("person.id"), nullable=True)
     #orders = db.relationship("Order", backref="user", lazy=True)
+
+    def __repr__(self):
+        return "<User %r>" % self.email
 
     def serialize(self):
         return{
             "id": self.id,
             "email": self.email,
-            "password": self.password
-
+            "firstname": self.firstname,
+            "lastname": self.lastname
         }
 
     def update_user(self, id,):
