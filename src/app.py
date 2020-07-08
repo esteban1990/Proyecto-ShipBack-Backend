@@ -10,7 +10,7 @@ from flask_script import Manager
 from flask_cors import CORS
 
 from models import (Billing_details, Boughtproduct, Change, Order,
-                    Petition, PickUpAddress, Return, Sender_details, ConfirmOrder,
+                    Petition, PickUpAddress, Return, Sender_details,
                     User, db)
 
 BASEDIR = os.path.abspath(os.path.dirname(__file__))
@@ -97,6 +97,9 @@ def user(id=None):
         if id is not None: 
             user = User.query.get(id)
             user.firstname = request.json.get("firstname")
+            user.lastname = request-json.get("lastname")
+            user.email =request.json.get("email")
+            user.password = request.json.get("password")
             db.session.commit()
             return jsonify(user.serialize()), 201
 
