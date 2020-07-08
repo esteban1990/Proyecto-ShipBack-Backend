@@ -10,8 +10,8 @@ from flask_script import Manager
 from flask_cors import CORS
 
 from models import (Billing_details, Boughtproduct, Change, Order,
-                    Petition, PickUpAddress, Return, Sender_details, ConfirmOrder,
-                    User, db)
+                    Petition, PickUpAddress, Return, Sender_details,
+                    User, Employee, db)
 
 BASEDIR = os.path.abspath(os.path.dirname(__file__))
 app = Flask(__name__)
@@ -307,7 +307,8 @@ def ordersPost():
         products=newOrder["products"],
         courrier=newOrder['courrier'],
         client_email=newOrder['client_email'],
-        cellphone=newOrder['cellphone'])
+        cellphone=newOrder['cellphone'],
+        confirmed=newOrder['confirmed'])
         # Cuando creas tu orden va a tener por defecto a tu estado, se genera la tabla, con estado 0, tú en el get en la tabla de órdenes creadas que tengan 0
         # Confirm te genera un estado 1
         # PUT, y cambia el estado.
