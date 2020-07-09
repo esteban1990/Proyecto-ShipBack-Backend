@@ -11,7 +11,7 @@ from flask_cors import CORS
 
 from models import (Billing_details, Boughtproduct, Change, Order,
                     Petition, PickUpAddress, Return, Sender_details,
-                    User, db)
+                    User, Employee, db)
 
 BASEDIR = os.path.abspath(os.path.dirname(__file__))
 app = Flask(__name__)
@@ -139,6 +139,7 @@ def getLogin():
     return jsonify(logins_json)
 
 
+
 @app.route("/forgot-password", methods=["PUT"])
 def forgotPasswordUser():
 
@@ -170,24 +171,60 @@ def forgotPasswordUser():
         db.session.commit()
 
 
-#@app.route("/users", methods=["GET"])
-#def getUsers():
-#    users = User.query.all()
-#    users_json = list(map(lambda item: item.serialize(), users))
-#
-#    return jsonify(users_json)
+@app.route("/admi_usuario", methods=["GET"])
+def getAdmi_Users():
+    users = User.query.all()
+    users_json = list(map(lambda item: item.serialize(),users))
+    return jsonify(users_json)
 
 
-#@app.route("/users", methods=["POST"])
-#def postUsers():
-#    newUser = json.loads(request.data)
-#    user = User(
-#        email=newUser["email"], 
-#        password=newUser["password"])
-#    db.session.add(user)
-#    db.session.commit()
+@app.route("/newUser", methods=["POST"])
+def postAdmi_Users():
+    newUser = json.loads(request.data)
+    user = User(
+        firstname=newUser["firstname"],
+        lastname=newUser["lastname"],
+        email=newUser["email"], 
+        password=newUser["password"])
 
-#    return jsonify(list(map(lambda item: item.serialize(), User.query.all())))
+    db.session.add(user)
+    db.session.commit()
+
+    return jsonify(list(map(lambda item: item.serialize(), User.query.all())))
+
+@app.route("/update_user/<int:id>", methods=["PUT"])
+def putAdmi_Usuarios(id):
+
+    if not request.is_json:
+        return jsonify({"msge": "Missing Json in request"}), 400
+
+
+    password = request.json.get("password", None)
+   # confirmPassword = request.json.get("confirmPassword", None)
+
+    user = User.query.filter_by(id=id).first()
+    if user is None:
+        return jsonify({"msge": "user dosent exist"}), 400
+    user.password = password
+# db.session.add(user) session.update???
+    db.session.commit()
+
+
+@app.route("/admi_usuario/<int:id>", methods=["DELETE"])
+def deleteUser_Admin(id):
+
+    if id is None:
+      return jsonify({"msge":"bad request"}),400
+    user = User.query.filter_by(id=id).first()
+    if not user:
+        return jsonify({"msge":"User not Found"}),400
+  #delete palabra reserverda en accion siguiente??
+    db.session.delete(user)
+    db.session.commit()
+    return jsonify({"msge": "User has been deleted"}),200
+
+
+
 
 
 @app.route("/billingdetails", methods=["GET"])
@@ -310,7 +347,8 @@ def ordersPost():
         products=newOrder["products"],
         courrier=newOrder['courrier'],
         client_email=newOrder['client_email'],
-        cellphone=newOrder['cellphone'])
+        cellphone=newOrder['cellphone'],
+        confirmed=newOrder['confirmed'])
         # Cuando creas tu orden va a tener por defecto a tu estado, se genera la tabla, con estado 0, tú en el get en la tabla de órdenes creadas que tengan 0
         # Confirm te genera un estado 1
         # PUT, y cambia el estado.
@@ -326,18 +364,6 @@ def ordersPost():
     return jsonify(list(map(lambda item: item.serialize(), Order.query.all()))), 200
 
 
-
-
-   
-
-
-
-@app.route("/tracking", methods=["GET"]) #método GET para las órdenes confirmadas. Es el mismo método GET que para órdenes.
-def getConfirmOrders():
-    confirm_orders = ConfirmOrder.query.all()
-    confirm_orders_json = list(map(lambda item: item.serialize(), confirm_orders))
-
-    return jsonify(confirm_orders_json)
 
 
 #@app.route("/tracking", methods=["PUT"]) #método POST para las órdenes confirmadas. Es el mismo método GET que para órdenes.
@@ -421,6 +447,24 @@ def pickupAddress():
         return jsonify({"msge": "user doesn't exist"}), 400
 
     snId = PickUpAddress.query.get(pickUp["sender_details.id"])
+
+@app.route("/navbar/settings/users", methods=["POST"])
+def postEmployedDetails():
+
+    employed_details = request.json.get(json.loads)
+    newEmployedDetails = Employee(id=newEmployedDetails["id"],password=newEmployedDetails["password"],email=newEmployedDetails["email"],
+    firstName=newEmployedDetails["firstName"],lastName=newEmployedDetails["lastname"])
+
+    db.session.add(newEmployedDetails)
+    db.session.commit()
+
+
+@app.route("/navbar/settings/detalle_UsuariosEmprendedor", methods=["GET"])
+def getEmployedDetails():
+    employed_details = Employee.query.all()
+    employed_details_json = list(map(lambda item: item.serilize(),employed_details))
+
+    return jsonify(employed_details_json)
 
 
 @app.route("/petitions", methods=["GET"])

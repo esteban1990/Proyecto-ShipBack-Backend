@@ -107,7 +107,8 @@ class Order(db.Model):
     courrier = db.Column(db.String(50), nullable=False) #se agrega courrier.
     client_email = db.Column(db.String(50), nullable=False)
     cellphone = db.Column(db.Integer, nullable=False)
-    user_email = db.Column(db.String(255), db.ForeignKey('user.email'), nullable=True)
+    confirmed = db.Column(db.Boolean, nullable=False)
+    #user_email = db.Column(db.String(255), db.ForeignKey('user.email'), nullable=True)
 
     def serialize(self):
         return{
@@ -122,13 +123,12 @@ class Order(db.Model):
             "courrier": self.courrier,
             "client_email": self.client_email,
             "cellphone": self.cellphone,
-            "user_email": self.user_email,
+            "confirmed": self.confirmed,
+            #"user_email": self.user_email,
         }
     
     def _generateId(self): 
         return randint(0, 99999999)
-
-
 
 class Billing_details(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -190,9 +190,6 @@ class PickUpAddress(db.Model):
         return randint(0, 99999999)
 
 
-
-
-
 class User(db.Model):
     __tablename__="user"
     id = db.Column(db.Integer, primary_key=True)
@@ -202,6 +199,7 @@ class User(db.Model):
     lastname = db.Column(db.String(150), nullable=False)
     #person_id = db.Column(db.Integer, db.ForeignKey("person.id"), nullable=True)
     #orders = db.relationship("Order", backref="user", lazy=True)
+    #employee = db.relationship("Employee", backref="user", lazy=True)
 
     def __repr__(self):
         return "<User %r>" % self.email
@@ -216,6 +214,36 @@ class User(db.Model):
 
     def update_user(self, id,):
         obj = self.get.User(id)
+        obj.update()
+        return obj
+    
+    def _generateId(self):
+        return randint(0, 99999999)
+
+
+
+class Employee(db.Model):
+    __tablename__="employee"
+    id = db.Column(db.Integer, primary_key=True)
+    password = db.Column(db.String(150), nullable=False)
+    #confirmPassword = db.Column(db.String(150), nullable=False)
+    email = db.Column(db.String(150), nullable=False, unique=True)
+    firstName = db.Column(db.String(150), nullable=False) #tiene el mismo nombre que aparece en el store.
+    lastName = db.Column(db.String(150), nullable=False) #tiene el mismo nombre que aparece en el store.
+
+    def __repr__(self):
+        return "<Employee %r>" % self.email
+
+    def serialize(self):
+        return{
+            "id": self.id,
+            "email": self.email,
+            "firstName": self.firstName,
+            "lastName": self.lastName
+        }
+
+    def update_user(self, id,):
+        obj = self.get.Employee(id)
         obj.update()
         return obj
     
