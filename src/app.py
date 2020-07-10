@@ -170,6 +170,33 @@ def forgotPasswordUser():
         db.session.add(user)
         db.session.commit()
 
+@app.route("/admin", methods=["POST"])
+def superAdmin():
+    if not request.is_json:
+        return jsonify({"msg": "Missing JSON in request"}), 400
+    email = request.json.get('email', None)
+    password = request.json.get('password', None)
+    if not email:
+        return jsonify({"msg": "Missing email parameter"}), 400
+    if not password:
+        return jsonify({"msg": "Missing password parameter"}), 400
+    
+    user = User.query.filter_by(email=email).first()
+
+    if email is None:
+        return jsonify({"msg": "Email not found"}), 404
+    if email != "contacto@shipback.com" or password !="ShipBack211!":
+        return jsonify({"msg": "Wrong Password or Email, not found"}), 404
+    
+    elif email == "contacto@shipback.com" and password =="ShipBack211!":
+        access_token = create_access_token(identity=email)
+        data = {
+            "access_token": access_token,
+            "user" : user.serialize(),
+            "msg": "success"
+        }
+        return jsonify(data), 200
+
 
 @app.route("/admi_usuario", methods=["GET"])
 def getAdmi_Users():
