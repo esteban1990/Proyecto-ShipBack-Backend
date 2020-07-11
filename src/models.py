@@ -152,10 +152,14 @@ class Billing_details(db.Model):
 
 class Sender_details(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    storeName = db.Column(db.String(10), nullable=False)
-    contactName = db.Column(db.String(10), nullable=False)
-    companyName = db.Column(db.String(10), nullable=False)
-    emailContact = db.Column(db.String(10), nullable=False)
+    storeName = db.Column(db.String(20), nullable=False)
+    contactName = db.Column(db.String(20), nullable=False)
+    companyName = db.Column(db.String(20), nullable=False)
+    contactPhone = db.Column(db.Integer, nullable=False)
+    industry = db.Column(db.String(20),nullable=False)
+    address = db.Column(db.String(10), nullable=False)
+    city = db.Column(db.String(30), nullable=False)
+    emailContact = db.Column(db.String(20), nullable=False)
     user_email = db.Column(db.String(255), db.ForeignKey('user.email'), nullable=True)
     PickUpAddress = db.relationship('PickUpAddress', backref='sender_details', lazy=True)
 
@@ -165,7 +169,12 @@ class Sender_details(db.Model):
             "storeName": self.storeName,
             "contactName": self.contactName,
             "companyName": self.companyName,
+            "contactPhone": self.contactPhone,
+            "industry":self.industry,
+            "address":self.address,
+            "city":self.city,
             "emailContact": self.emailContact,
+            "user_email": self.user_email
         }
     
     def _generateId(self):

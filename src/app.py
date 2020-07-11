@@ -420,17 +420,17 @@ def ordersPost():
    # return jsonify(list(map(lambda item: item.serialize(), ConfirmOrder.query.all()))), 200
 
 
-@app.route("/sender-details", methods=["POST"])
+@app.route("/settings", methods=["POST"])
 def sender_detailsPost():
 
     pickupAddress = PickUpAddress()
 
     newDetails = json.loads(request.data)
     sender_details = Sender_details(storeName=newDetails["storeName"], contactName=newDetails["contactName"],
-                                    companyName=newDetails["companyName"], emailContact=newDetails["emailContact"], user_email=newDetails["user_email"])
+                                    companyName=newDetails["companyName"],contactPhone=newDetails["contactPhone"],industry=newDetails["industry"],address=newDetails["address"],city=newDetails["city"], emailContact=newDetails["emailContact"], user_email=newDetails["user_email"])
 
     # email = request.json.get("email",None)
-    # pickup = PickUpAddress( Sender_details_id = sender_details.id, address=pickup["address"], city=pickup["city"])
+     #pickup = PickUpAddress( Sender_details_id = sender_details.id, address=pickup["address"], city=pickup["city"])
 
     db.session.add(sender_details)
     db.session.commit()
@@ -448,7 +448,7 @@ def sender_detailsPost():
     return jsonify(list(map(lambda item: item.serialize(), Sender_details.query.all())))
 
 
-@app.route("/sender-details", methods=["GET"])
+@app.route("/settings", methods=["GET"])
 def senderdetailsGet():
 
     details = Sender_details.query.all()
