@@ -103,8 +103,6 @@ def user(id=None):
             db.session.commit()
             return jsonify(user.serialize()), 201
 
-
-
 @app.route("/login", methods=["POST"])
 def login():
     if not request.is_json:
@@ -129,6 +127,14 @@ def login():
             "msg": "success"
         }
         return jsonify(data), 200
+    
+    elif user.password != password:
+        data = {
+            "real password": user.password,
+            "entered password": password,
+            "msg": "password don't match (wrong password)"
+        }
+        return jsonify(data), 400
 
 
 @app.route("/login", methods=["GET"])
@@ -285,7 +291,30 @@ def billingDetailsPost():
 
 @app.route("/orders", methods=["GET"])
 def getOrders():
-    orders = Order.query.all()
+    orders = Order.query.filter_by(confirmed = False)
+    orders_json = list(map(lambda item: item.serialize(), orders))
+
+    return jsonify(orders_json)
+
+
+@app.route("/orders/<int:invoice_id>", methods=["PUT"]) #método PUT para las órdenes confirmadas. 
+def confirmOrder(invoice_id):
+    if invoice_id is None:
+        return jsonify({"msge": "bad request"}), 400    
+    
+    order = Order.query.filter_by(invoice_id=invoice_id).first()
+
+    if not order:
+        return jsonify({"msge": "Order not found"}), 400
+    
+    order.confirmed = True
+
+    db.session.commit()
+    return jsonify({"msge": "Order has been confirmed"}), 200
+
+@app.route("/tracking", methods=["GET"])
+def getConfirmedOrders():
+    orders = Order.query.filter_by(confirmed = True)
     orders_json = list(map(lambda item: item.serialize(), orders))
 
     return jsonify(orders_json)
