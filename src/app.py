@@ -10,7 +10,7 @@ from flask_script import Manager
 from flask_cors import CORS
 
 from models import (Billing_details, Boughtproduct, Change, Order,
-                    Petition, PickUpAddress, Return, Sender_details,
+                    Petition, Return, Sender_details,
                     User, Employee, db)
 
 BASEDIR = os.path.abspath(os.path.dirname(__file__))
@@ -103,8 +103,6 @@ def user(id=None):
             db.session.commit()
             return jsonify(user.serialize()), 201
 
-
-
 @app.route("/login", methods=["POST"])
 def login():
     if not request.is_json:
@@ -129,6 +127,14 @@ def login():
             "msg": "success"
         }
         return jsonify(data), 200
+    
+    elif user.password != password:
+        data = {
+            "real password": user.password,
+            "entered password": password,
+            "msg": "password don't match (wrong password)"
+        }
+        return jsonify(data), 400
 
 
 @app.route("/login", methods=["GET"])
@@ -254,11 +260,10 @@ def deleteUser_Admin(id):
 
 
 
-@app.route("/billingdetails", methods=["GET"])
+@app.route("/billingdetails/detailCards", methods=["GET"])
 def billingDetailsGet():
     billingDetails = Billing_details.query.all()
-    billingDetails_json = list(
-        map(lambda item: item.serialize(), billingDetails))
+    billingDetails_json = list(map(lambda item: item.serialize(), billingDetails))
 
     return (billingDetails_json)
 
@@ -267,8 +272,8 @@ def billingDetailsGet():
 def billingDetailsPost():
 
     newInfo = json.loads(request.data)
-    info = Billing_details(id=newInfo["id"], cvv=newInfo["cvv"], cardNumber=newInfo["cardNumber"], expiration_date=newInfo["expiration_date"],
-                           user_email=newInfo["user_email"])
+    info = Billing_details(id=newInfo["id"], cvv=newInfo["cvv"], cardNumber=newInfo["cardNumber"], month=newInfo["month"],
+                           year=newInfo["year"])
 
     # email = request.json.get("email",None)
 
@@ -285,7 +290,30 @@ def billingDetailsPost():
 
 @app.route("/orders", methods=["GET"])
 def getOrders():
-    orders = Order.query.all()
+    orders = Order.query.filter_by(confirmed = False)
+    orders_json = list(map(lambda item: item.serialize(), orders))
+
+    return jsonify(orders_json)
+
+
+@app.route("/orders/<int:invoice_id>", methods=["PUT"]) #método PUT para las órdenes confirmadas. 
+def confirmOrder(invoice_id):
+    if invoice_id is None:
+        return jsonify({"msge": "bad request"}), 400    
+    
+    order = Order.query.filter_by(invoice_id=invoice_id).first()
+
+    if not order:
+        return jsonify({"msge": "Order not found"}), 400
+    
+    order.confirmed = True
+
+    db.session.commit()
+    return jsonify({"msge": "Order has been confirmed"}), 200
+
+@app.route("/tracking", methods=["GET"])
+def getConfirmedOrders():
+    orders = Order.query.filter_by(confirmed = True)
     orders_json = list(map(lambda item: item.serialize(), orders))
 
     return jsonify(orders_json)
@@ -423,27 +451,20 @@ def ordersPost():
 @app.route("/settings", methods=["POST"])
 def sender_detailsPost():
 
-    pickupAddress = PickUpAddress()
-
     newDetails = json.loads(request.data)
     sender_details = Sender_details(storeName=newDetails["storeName"], contactName=newDetails["contactName"],
-                                    companyName=newDetails["companyName"],contactPhone=newDetails["contactPhone"],industry=newDetails["industry"],address=newDetails["address"],city=newDetails["city"], emailContact=newDetails["emailContact"], user_email=newDetails["user_email"])
+                                    companyName=newDetails["companyName"],contactPhone=newDetails["contactPhone"],industry=newDetails["industry"],address=newDetails["address"],city=newDetails["city"], emailContact=newDetails["emailContact"])
 
     # email = request.json.get("email",None)
      #pickup = PickUpAddress( Sender_details_id = sender_details.id, address=pickup["address"], city=pickup["city"])
 
     db.session.add(sender_details)
     db.session.commit()
-    snId = Sender_details.query.get(newDetails["user_email"])
-    pickup = PickUpAddress(Sender_details_id=snId.id,
-                           address=pickup["address"], city=pickup["city"])
 
-    user = User.query.filter_by(email=snId).first()
-    if user is None:
-        return jsonify({"msge": "user doesn't exist"}), 400
+  #  user = User.query.filter_by(email=email.).first()
+  #  if user is None:
+   #     return jsonify({"msge": "user doesn't exist"}), 400
 
-    db.session.add(pickup)
-    db.session.commit()
 
     return jsonify(list(map(lambda item: item.serialize(), Sender_details.query.all())))
 
@@ -457,39 +478,24 @@ def senderdetailsGet():
     return jsonify(details_json)
 
 
-@app.route("/pick-up-address", methods=["POST"])
-def pickupAddress():
-
-    senderDetails = Sender_details()
-    newpickUp = json.loads(request.data)
-
-    pickUp = PickUpAddress(address=newpickUp["address"],
-                           city=newpickUp["city"], Sender_details_id=["sender_details.id"])
-
-    db.session.add(pickUp)
-
-    email = request.json.get("email", None)
-    user = User.query.filter_by(email=email)
-    if user is None:
-        return jsonify({"msge": "user doesn't exist"}), 400
-
-    snId = PickUpAddress.query.get(pickUp["sender_details.id"])
 
 @app.route("/navbar/settings/users", methods=["POST"])
 def postEmployedDetails():
 
     employed_details = request.json.get(json.loads)
-    newEmployedDetails = Employee(id=newEmployedDetails["id"],password=newEmployedDetails["password"],email=newEmployedDetails["email"],
-    firstName=newEmployedDetails["firstName"],lastName=newEmployedDetails["lastname"])
+    newEmployedDetails = Employee(id=newEmployedDetails["id"], password=newEmployedDetails["password"],email=newEmployedDetails["email"],
+    firstName=newEmployedDetails["firstName"],lastName=newEmployedDetails["lastName"])
 
     db.session.add(newEmployedDetails)
     db.session.commit()
+
+    return jsonify(list(map(lambda item: item.serialize(),Employee.query.all())))
 
 
 @app.route("/navbar/settings/detalle_UsuariosEmprendedor", methods=["GET"])
 def getEmployedDetails():
     employed_details = Employee.query.all()
-    employed_details_json = list(map(lambda item: item.serilize(),employed_details))
+    employed_details_json = list(map(lambda item: item.serialize(),employed_details))
 
     return jsonify(employed_details_json)
 
@@ -499,7 +505,7 @@ def getPetitions():
     petitions = Petition.query.all()
     petitions_json = list(map(lambda item: item.serialize(), petitions))
 
-    return jsonify(petitions_json)
+    return jsonify({petitions_json})
 
 
 @app.route("/petitions", methods=["POST"])

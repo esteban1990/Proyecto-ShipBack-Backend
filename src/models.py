@@ -134,7 +134,8 @@ class Billing_details(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     cardNumber = db.Column(db.Integer, nullable=False)
     cvv = db.Column(db.Integer, nullable=False)
-    expiration_date = db.Column(db.String(50), nullable=False)
+    month = db.Column(db.String(50), nullable=False)
+    year = db.Column(db.Integer, nullable=False)
     user_email = db.Column(db.String(255), db.ForeignKey('user.email'), nullable=True)
 
     def serialize(self):
@@ -142,7 +143,9 @@ class Billing_details(db.Model):
             "id": self.id,
             "cardNumber": self.cardNumber,
             "cvv": self.cvv,
-            "expiration_date": self.expiration_date
+            "month": self.month,
+            "year":self.year,
+         
 
         }
     
@@ -160,8 +163,7 @@ class Sender_details(db.Model):
     address = db.Column(db.String(10), nullable=False)
     city = db.Column(db.String(30), nullable=False)
     emailContact = db.Column(db.String(20), nullable=False)
-    user_email = db.Column(db.String(255), db.ForeignKey('user.email'), nullable=True)
-    PickUpAddress = db.relationship('PickUpAddress', backref='sender_details', lazy=True)
+   # user_email = db.Column(db.String(255), db.ForeignKey('user.email'), nullable=True)
 
     def serialize(self):
         return{
@@ -174,30 +176,11 @@ class Sender_details(db.Model):
             "address":self.address,
             "city":self.city,
             "emailContact": self.emailContact,
-            "user_email": self.user_email
+        
         }
     
     def _generateId(self):
         return randint(0, 99999999)
-
-
-class PickUpAddress(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    address = db.Column(db.String(50), nullable=False)
-    city = db.Column(db.String(50), nullable=False)
-    Sender_details_id = db.Column(
-        db.Integer, db.ForeignKey('sender_details.id'), nullable=True)
-
-    def serialize(self):
-        return{
-            "id": self.id,
-            "address": self.address,
-            "city": self.city,
-        }
-    
-    def _generateId(self):
-        return randint(0, 99999999)
-
 
 class User(db.Model):
     __tablename__="user"
