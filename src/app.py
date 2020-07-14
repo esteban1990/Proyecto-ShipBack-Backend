@@ -231,16 +231,19 @@ def putAdmi_Usuarios(id):
     if not request.is_json:
         return jsonify({"msge": "Missing Json in request"}), 400
 
+    if id is None:
+        return jsonify({"msge":"bad request"}),400
+    user = User.query.filter_by(id=id).first()
 
     password = request.json.get("password", None)
-   # confirmPassword = request.json.get("confirmPassword", None)
 
-    user = User.query.filter_by(id=id).first()
-    if user is None:
-        return jsonify({"msge": "user dosent exist"}), 400
     user.password = password
-# db.session.add(user) session.update???
+    db.session.update(user)
     db.session.commit()
+
+    if not user:
+        return jsonify({"msge":"User not Found"}),400
+
 
 
 @app.route("/admi_usuario/<int:id>", methods=["DELETE"])
@@ -272,14 +275,14 @@ def billingDetailsGet():
 def billingDetailsPost():
 
     newInfo = json.loads(request.data)
-    info = Billing_details(id=newInfo["id"], cvv=newInfo["cvv"], cardNumber=newInfo["cardNumber"], month=newInfo["month"],
+    info = Billing_details(cvv=newInfo["cvv"], cardNumber=newInfo["cardNumber"], month=newInfo["month"],
                            year=newInfo["year"])
 
     # email = request.json.get("email",None)
 
-    user = User.query.filter_by(email=newInfo["user_email"]).first()
-    if user is None:
-        return jsonify({"msge": "user dosent exist"}), 400
+    #user = User.query.filter_by(email=newInfo["user_email"]).first()
+  #  if user is None:
+   #     return jsonify({"msge": "user dosent exist"}), 400
 
     # Billing_details.user.append(user)
     db.session.add(info)
@@ -482,9 +485,9 @@ def senderdetailsGet():
 @app.route("/navbar/settings/users", methods=["POST"])
 def postEmployedDetails():
 
-    employed_details = request.json.get(json.loads)
-    newEmployedDetails = Employee(id=newEmployedDetails["id"], password=newEmployedDetails["password"],email=newEmployedDetails["email"],
-    firstName=newEmployedDetails["firstName"],lastName=newEmployedDetails["lastName"])
+    employed_details = json.loads(request.data)
+    newEmployedDetails = Employee(email=employed_details["email"], firstName=employed_details["firstName"],
+   lastName=employed_details["lastName"],password=employed_details["password"])
 
     db.session.add(newEmployedDetails)
     db.session.commit()
@@ -492,8 +495,10 @@ def postEmployedDetails():
     return jsonify(list(map(lambda item: item.serialize(),Employee.query.all())))
 
 
-@app.route("/navbar/settings/detalle_UsuariosEmprendedor", methods=["GET"])
+
+@app.route("/navbar/settings/users/detalle_UsuariosEmprendedor", methods=["GET"])
 def getEmployedDetails():
+    
     employed_details = Employee.query.all()
     employed_details_json = list(map(lambda item: item.serialize(),employed_details))
 

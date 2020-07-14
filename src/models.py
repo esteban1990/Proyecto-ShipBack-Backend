@@ -136,7 +136,7 @@ class Billing_details(db.Model):
     cvv = db.Column(db.Integer, nullable=False)
     month = db.Column(db.String(50), nullable=False)
     year = db.Column(db.Integer, nullable=False)
-    user_email = db.Column(db.String(255), db.ForeignKey('user.email'), nullable=True)
+    #user_email = db.Column(db.String(255), db.ForeignKey('user.email'), nullable=True)
 
     def serialize(self):
         return{
@@ -146,7 +146,6 @@ class Billing_details(db.Model):
             "month": self.month,
             "year":self.year,
          
-
         }
     
     def _generateId(self):
