@@ -27,25 +27,6 @@ db.init_app(app)
 Manager = Manager(app)
 Manager.add_command("db", MigrateCommand)
 
-
-#@app.route("/persons", methods=["GET"])
-#def getPersons():
-#    persons = Person.query.all()
-#    persons_json = list(map(lambda item: item.serialize(), persons))
-#
-#    return jsonify(persons_json)
-
-
-#@app.route("/persons", methods=["POST"])
-#def postPersons():
-#    newPerson = json.loads(request.data)
-#    person = Person(name=newPerson["name"], lastname=newPerson["lastname"])
-#    db.session.add(person)
-#    db.session.commit()
-#
-#    return jsonify(list(map(lambda item: item.serialize(), Person.query.all())))
-
-
 @app.route("/signup", methods=["POST"])
 def signUp():
         #Regular expression that checks a valid email
@@ -261,8 +242,6 @@ def deleteUser_Admin(id):
 
 
 
-
-
 @app.route("/billingdetails/detailCards", methods=["GET"])
 def billingDetailsGet():
     billingDetails = Billing_details.query.all()
@@ -321,60 +300,6 @@ def getConfirmedOrders():
 
     return jsonify(orders_json)
 
-#@app.route("/orders", methods=["PUT"])
-#def putOrders():
- #   if not request.is_json:
-  #      return jsonify({"msge": "Missing Json in request"}), 400
-
-   # order = Order.query.get(order)
-
-    #id = request.json.get("id", None)
-    #client_email = request.json.get("client_name", None)
-    #streetAddress = request.json.get("streetAddress", None)
-    #commune =request.json.get("commune", None)
-    #city = request.json.get("city", None)
-    #invoice_id = request.json.get("invoice_id", None)
-    #office_id = request.json.get("office_id",None)
-    #products = request.json.get("products", None)
-    #courrier = request.json.get("courrier",None)
-    #cellphone = request.json.get("cellphone", None) 
-
-
-    #if not id:
-     #   return jsonify({"msge": "Misssing email parameter"}), 400
-
-    #if not client_email:
-      #  return({"msge": "Missing password parameter"}), 400
-
-    #if not streetAddress:
-     #   return({"msge": "Missing password parameter"}), 400
-
-    
-    #if not commune:
-     #   return jsonify({"msge": "Misssing email parameter"}), 400
-
-    #if not city:
-     #   return({"msge": "Missing password parameter"}), 400
-
-    #if not invoice_id:
-      #  return({"msge": "Missing password parameter"}), 400
-    
-    #if not office_id:
-     #   return({"msge": "Missing password parameter"}), 400
-
-    #if not products:
-     #   return({"msge": "Missing password parameter"}), 400
-
-    
-    #if not courrier:
-    #    return jsonify({"msge": "Misssing email parameter"}), 400
-
-    #user = User.query.filter_by(email=email).first()
-    #if user is None:
-     #   return jsonify({"msge": "user dosent exist"}), 400
-
-
-
 @app.route("/orders/<int:invoice_id>", methods=["DELETE"])
 def deleteOrder(invoice_id):
   if invoice_id is None:
@@ -386,9 +311,6 @@ def deleteOrder(invoice_id):
   db.session.delete(order)
   db.session.commit()
   return jsonify({"msge": "Order has been deleted"}),200
-
-
-
 
 @app.route("/orders", methods=["POST"])
 def ordersPost():
@@ -407,9 +329,6 @@ def ordersPost():
         client_email=newOrder['client_email'],
         cellphone=newOrder['cellphone'],
         confirmed=newOrder['confirmed'])
-        # Cuando creas tu orden va a tener por defecto a tu estado, se genera la tabla, con estado 0, tú en el get en la tabla de órdenes creadas que tengan 0
-        # Confirm te genera un estado 1
-        # PUT, y cambia el estado.
 
     # user = User.query.filter_by(email=user.email).first() 
     # if user is None:
@@ -420,35 +339,6 @@ def ordersPost():
     db.session.commit()
 
     return jsonify(list(map(lambda item: item.serialize(), Order.query.all()))), 200
-
-
-
-
-#@app.route("/tracking", methods=["PUT"]) #método POST para las órdenes confirmadas. Es el mismo método GET que para órdenes.
-#def confirmOrdersPut():
-
- #   confirmOrder = json.loads(request.data)
-  #  confirm_order = ConfirmOrder(
-   #     client_name=confirmOrder['client_name'],
-    #    streetAddress=confirmOrder["streetAddress"],
-     #   commune=confirmOrder["commune"],
-      #  city=confirmOrder["city"],
-       # invoice_id=confirmOrder["invoice_id"],
-       # office_id=confirmOrder["office_id"],
-       # products=confirmOrder["products"],
-       # courrier=confirmOrder['courrier'],
-       # client_email=confirmOrder['client_email'],
-        #cellphone=confirmOrder['cellphone'])
-
-    #user = User.query.filter_by(email=user.email).first() 
-    #if user is None:
-     # return jsonify({"msge": "user doesn't exist"}), 400
-
-    #confirm_order.user.append(user)
-    #db.session.add(confirm_order)
-    #db.session.commit()
-
-   # return jsonify(list(map(lambda item: item.serialize(), ConfirmOrder.query.all()))), 200
 
 
 @app.route("/settings", methods=["POST"])
@@ -481,13 +371,12 @@ def senderdetailsGet():
     return jsonify(details_json)
 
 
+@app.route("/settings/users", methods=["POST"])
+def postEmployeeDetails():
 
-@app.route("/navbar/settings/users", methods=["POST"])
-def postEmployedDetails():
-
-    employed_details = json.loads(request.data)
-    newEmployedDetails = Employee(email=employed_details["email"], firstName=employed_details["firstName"],
-   lastName=employed_details["lastName"],password=employed_details["password"])
+    employee_details = json.loads(request.data)
+    newEmployedDetails = Employee(employee_email=employee_details["employee_email"], employee_firstName=employee_details["employee_firstName"],
+   employee_lastName=employee_details["employee_lastName"],employee_password=employee_details["employee_password"])
 
     db.session.add(newEmployedDetails)
     db.session.commit()
@@ -496,8 +385,8 @@ def postEmployedDetails():
 
 
 
-@app.route("/navbar/settings/users/detalle_UsuariosEmprendedor", methods=["GET"])
-def getEmployedDetails():
+@app.route("/settings/users/all", methods=["GET"])
+def getEmployeeDetails():
     
     employed_details = Employee.query.all()
     employed_details_json = list(map(lambda item: item.serialize(),employed_details))
