@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: f837e2f2be65
+Revision ID: fa93271a42fb
 Revises: 
-Create Date: 2020-07-13 19:15:37.590514
+Create Date: 2020-07-13 23:10:18.975054
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'f837e2f2be65'
+revision = 'fa93271a42fb'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -28,12 +28,11 @@ def upgrade():
     )
     op.create_table('employee',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('password', sa.String(length=150), nullable=False),
-    sa.Column('email', sa.String(length=150), nullable=False),
-    sa.Column('firstName', sa.String(length=150), nullable=False),
-    sa.Column('lastName', sa.String(length=150), nullable=False),
-    sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('email')
+    sa.Column('employee_password', sa.String(length=150), nullable=False),
+    sa.Column('employee_email', sa.String(length=150), nullable=False),
+    sa.Column('employee_firstName', sa.String(length=150), nullable=False),
+    sa.Column('employee_lastName', sa.String(length=150), nullable=False),
+    sa.PrimaryKeyConstraint('id')
     )
     op.create_table('order',
     sa.Column('id', sa.Integer(), nullable=False),

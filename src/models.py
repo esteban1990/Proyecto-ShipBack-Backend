@@ -216,11 +216,11 @@ class User(db.Model):
 class Employee(db.Model):
     __tablename__="employee"
     id = db.Column(db.Integer, primary_key=True)
-    password = db.Column(db.String(150), nullable=False)
+    employee_password = db.Column(db.String(150), nullable=False)
     #confirmPassword = db.Column(db.String(150), nullable=False)
-    email = db.Column(db.String(150), nullable=False, unique=True)
-    firstName = db.Column(db.String(150), nullable=False) #tiene el mismo nombre que aparece en el store.
-    lastName = db.Column(db.String(150), nullable=False) #tiene el mismo nombre que aparece en el store.
+    employee_email = db.Column(db.String(150), nullable=False)
+    employee_firstName = db.Column(db.String(150), nullable=False) 
+    employee_lastName = db.Column(db.String(150), nullable=False) 
 
     def __repr__(self):
         return "<Employee %r>" % self.email
@@ -228,9 +228,9 @@ class Employee(db.Model):
     def serialize(self):
         return{
             "id": self.id,
-            "email": self.email,
-            "firstName": self.firstName,
-            "lastName": self.lastName
+            "employee_email": self.employee_email,
+            "employee_firstName": self.employee_firstName,
+            "employee_lastName": self.employee_lastName
         }
 
     def update_user(self, id,):
