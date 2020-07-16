@@ -211,19 +211,19 @@ def putAdmi_Usuarios(id):
 
     if not request.is_json:
         return jsonify({"msge": "Missing Json in request"}), 400
-
     if id is None:
         return jsonify({"msge":"bad request"}),400
     user = User.query.filter_by(id=id).first()
-
+    if not user:
+        return jsonify({"msge":"User not Found"}),400
+        
     password = request.json.get("password", None)
 
     user.password = password
-    db.session.update(user)
+   # db.session.add(user)
     db.session.commit()
-
-    if not user:
-        return jsonify({"msge":"User not Found"}),400
+    return jsonify(user.serialize()),200
+    
 
 
 
