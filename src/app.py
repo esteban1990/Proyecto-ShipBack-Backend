@@ -111,8 +111,6 @@ def login():
     
     elif user.password != password:
         data = {
-            "real password": user.password,
-            "entered password": password,
             "msg": "password don't match (wrong password)"
         }
         return jsonify(data), 400
@@ -154,8 +152,9 @@ def forgotPasswordUser():
         return ({"msge": "Passwords dont match"}), 400
 
         user.password = password
-        db.session.add(user)
+        #db.session.add(user)
         db.session.commit()
+        return jsonify(user.serialize()),200
 
 @app.route("/admin", methods=["POST"])
 def superAdmin():
